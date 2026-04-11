@@ -1,77 +1,60 @@
-"""RRF (Reciprocal Rank Fusion) 混合检索"""
-from typing import List, Dict
+#!/usr/bin/env python3
+"""
+rrf - V4.3.2 融合版
 
-class RRFFusion:
-    """RRF 算法实现"""
+融合自:
+- orchestration/router/rrf.py
+- memory_context/search/rrf.py
+
+此模块为统一实现，其他位置通过兼容层引用
+"""
+
+from typing import List, Dict, Any, Tuple
+from collections import defaultdict
+
+def reciprocal_rank_fusion(
+    rankings: List[List[Tuple[str, float]]],
+    k: int = 60
+) -> List[Tuple[str, float]]:
+    """
+    Reciprocal Rank Fusion (RRF) 算法
     
-    def __init__(self, k: int = 60):
-        """
-        Args:
-            k: RRF 参数，默认60
-        """
-        self.k = k
+    Args:
+        rankings: 多个排序列表，每个元素是 (item_id, score) 元组列表
+        k: RRF 参数，默认 60
     
-    def fuse(self, vector_results: List[Dict], fts_results: List[Dict]) -> List[Dict]:
-        """
-        RRF 融合
-        
-        公式: RRF(d) = Σ 1/(k + rank(d))
-        """
-        # 计算每个结果的 RRF 分数
-        scores = {}
-        
-        # 向量结果排名
-        for rank, result in enumerate(vector_results, 1):
-            rid = result.get("record_id")
-            if rid not in scores:
-                scores[rid] = {
-                    "record_id": rid,
-                    "content": result.get("content", ""),
-                    "type": result.get("type", ""),
-                    "scene": result.get("scene", ""),
-                    "vector_rank": rank,
-                    "fts_rank": None,
-                    "rrf_score": 0,
-                    "source": "vector"
-                }
-            scores[rid]["rrf_score"] += 1 / (self.k + rank)
-        
-        # FTS 结果排名
-        for rank, result in enumerate(fts_results, 1):
-            rid = result.get("record_id")
-            if rid not in scores:
-                scores[rid] = {
-                    "record_id": rid,
-                    "content": result.get("content", ""),
-                    "type": result.get("type", ""),
-                    "scene": result.get("scene", ""),
-                    "vector_rank": None,
-                    "fts_rank": rank,
-                    "rrf_score": 0,
-                    "source": "fts"
-                }
-            else:
-                scores[rid]["fts_rank"] = rank
-                scores[rid]["source"] = "hybrid"
-            scores[rid]["rrf_score"] += 1 / (self.k + rank)
-        
-        # 按 RRF 分数排序
-        results = list(scores.values())
-        results.sort(key=lambda x: x["rrf_score"], reverse=True)
-        
-        return results
+    Returns:
+        融合后的排序列表
+    """
+    scores = defaultdict(float)
     
-    @staticmethod
-    def explain_rank(vector_rank: int, fts_rank: int, k: int = 60) -> str:
-        """解释排名"""
-        vec_score = 1 / (k + vector_rank) if vector_rank else 0
-        fts_score = 1 / (k + fts_rank) if fts_rank else 0
-        total = vec_score + fts_score
-        
-        parts = []
-        if vector_rank:
-            parts.append(f"向量排名#{vector_rank}={vec_score:.4f}")
-        if fts_rank:
-            parts.append(f"FTS排名#{fts_rank}={fts_score:.4f}")
-        
-        return f"RRF={total:.4f} ({' + '.join(parts)})"
+    for ranking in rankings:
+        for rank, (item_id, _) in enumerate(ranking, 1):
+            scores[item_id] += 1.0 / (k + rank)
+    
+    # 按分数降序排序
+    result = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    return result
+
+def weighted_rrf(
+    rankings: List[Tuple[List[Tuple[str, float]], float]],
+    k: int = 60
+) -> List[Tuple[str, float]]:
+    """
+    加权 RRF
+    
+    Args:
+        rankings: 列表 of (ranking, weight) 元组
+        k: RRF 参数
+    
+    Returns:
+        融合后的排序列表
+    """
+    scores = defaultdict(float)
+    
+    for ranking, weight in rankings:
+        for rank, (item_id, _) in enumerate(ranking, 1):
+            scores[item_id] += weight / (k + rank)
+    
+    result = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    return result

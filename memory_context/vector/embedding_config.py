@@ -7,13 +7,14 @@ import os
 import json
 from typing import Optional, Dict, Any
 from pathlib import Path
+from infrastructure.path_resolver import get_project_root
 
 
 class EmbeddingConfig:
     """Embedding 配置管理器"""
 
     # 配置文件路径
-    CONFIG_FILE = Path.home() / ".openclaw" / "embedding_config.json"
+    CONFIG_FILE = get_project_root() / "embedding_config.json"
 
     # 环境变量映射
     ENV_VARS = {

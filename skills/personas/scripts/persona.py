@@ -20,13 +20,14 @@ import os
 import re
 import sys
 from pathlib import Path
+from infrastructure.path_resolver import get_project_root
 from typing import Optional
 
 
 # Paths
 SCRIPT_DIR = Path(__file__).parent
 DATA_DIR = SCRIPT_DIR.parent / "data"
-STATE_FILE = Path.home() / ".openclaw" / "persona-state.json"
+STATE_FILE = get_project_root() / "persona-state.json"
 
 # Persona metadata extracted from filenames and content
 PERSONAS = {

@@ -8,9 +8,10 @@ import json
 import sys
 from datetime import datetime
 from pathlib import Path
+from infrastructure.path_resolver import get_project_root
 
 # 配置文件路径
-CONFIG_DIR = Path.home() / '.config' / 'crypto'
+CONFIG_DIR = get_project_root() / '.config' / 'crypto'
 PORTFOLIO_FILE = CONFIG_DIR / 'portfolio.json'
 
 def ensure_config_dir():

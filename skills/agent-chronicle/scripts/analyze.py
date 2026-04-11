@@ -19,6 +19,7 @@ import re
 from collections import Counter
 from datetime import datetime, timedelta
 from pathlib import Path
+from infrastructure.path_resolver import get_project_root
 
 # Configuration
 SCRIPT_DIR = Path(__file__).parent
@@ -121,8 +122,8 @@ def get_workspace_root():
 
     candidates = [
         Path.cwd(),
-        Path.home() / "clawd",
-        Path.home() / ".openclaw" / "workspace",
+        get_project_root() / "clawd",
+        get_project_root(),
     ]
     for path in candidates:
         if (path / "memory").exists():

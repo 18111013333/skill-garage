@@ -12,6 +12,7 @@ import json
 import sys
 import os
 from pathlib import Path
+from infrastructure.path_resolver import get_project_root
 from typing import List, Dict, Optional, Tuple
 
 PLANNING_FILES = ['task_plan.md', 'progress.md', 'findings.md']
@@ -54,13 +55,13 @@ def get_project_dir(project_path: str) -> Tuple[Optional[Path], Optional[str]]:
     if sanitized.startswith('-'):
         sanitized = sanitized[1:]
 
-    claude_path = Path.home() / '.claude' / 'projects' / sanitized
+    claude_path = get_project_root() / '.claude' / 'projects' / sanitized
 
     # Codex stores sessions in ~/.codex/sessions with a different format.
     # Avoid silently scanning Claude paths when running from Codex skill folder.
     script_path = Path(__file__).as_posix().lower()
     is_codex_variant = '/.codex/' in script_path
-    codex_sessions_dir = Path.home() / '.codex' / 'sessions'
+    codex_sessions_dir = get_project_root() / '.codex' / 'sessions'
     if is_codex_variant and codex_sessions_dir.exists() and not claude_path.exists():
         return None, (
             "[planning-with-files] Session catchup skipped: Codex stores sessions "

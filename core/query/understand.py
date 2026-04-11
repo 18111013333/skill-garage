@@ -1,127 +1,96 @@
-"""查询理解增强 - 意图识别 + 实体提取"""
-import re
-from typing import Dict, List, Tuple
+#!/usr/bin/env python3
+"""
+understand - V4.3.2 融合版
 
-class QueryUnderstanding:
-    # 意图类型
-    INTENTS = {
-        'search': ['查找', '搜索', '找', '查询', '查看', '显示', '获取'],
-        'config': ['配置', '设置', '修改', '更新', '创建', '添加', '删除'],
-        'status': ['状态', '检查', '检测', '是否', '有没有'],
-        'explain': ['为什么', '怎么', '如何', '什么是', '解释'],
-        'compare': ['比较', '区别', '对比', '差异', '优缺点'],
-    }
+融合自:
+- core/query/understand.py
+- memory_context/search/understand.py
+
+此模块为统一实现，其他位置通过兼容层引用
+"""
+
+from typing import Dict, Any, Optional, List
+from dataclasses import dataclass, field
+from enum import Enum
+import re
+
+class IntentType(Enum):
+    SEARCH = "search"
+    CREATE = "create"
+    UPDATE = "update"
+    DELETE = "delete"
+    QUERY = "query"
+    UNKNOWN = "unknown"
+
+@dataclass
+class UnderstandingResult:
+    """理解结果"""
+    intent: IntentType
+    entities: Dict[str, Any] = field(default_factory=dict)
+    confidence: float = 0.0
+    original_query: str = ""
+
+class QueryUnderstander:
+    """查询理解器"""
     
-    # 实体类型
-    ENTITIES = {
-        'memory': ['记忆', '向量', 'FTS', '缓存', 'LLM', 'Embedding'],
-        'task': ['任务', '推送', '通知', '闹钟', '日程'],
-        'config': ['配置', '设置', '规则', '偏好', '风格'],
-        'file': ['文件', '文档', 'PDF', 'Word', 'PPT'],
-    }
-    
-    @classmethod
-    def analyze(cls, query: str) -> Dict:
-        """分析查询"""
-        return {
-            "intent": cls._detect_intent(query),
-            "entities": cls._extract_entities(query),
-            "keywords": cls._extract_keywords(query),
-            "is_question": cls._is_question(query),
-            "complexity": cls._estimate_complexity(query),
+    def __init__(self):
+        self._intent_patterns = {
+            IntentType.SEARCH: ["搜索", "查找", "找", "search", "find"],
+            IntentType.CREATE: ["创建", "新建", "添加", "create", "add"],
+            IntentType.UPDATE: ["更新", "修改", "编辑", "update", "edit"],
+            IntentType.DELETE: ["删除", "移除", "清除", "delete", "remove"],
+            IntentType.QUERY: ["查询", "获取", "查看", "query", "get"],
         }
     
-    @classmethod
-    def _detect_intent(cls, query: str) -> Tuple[str, float]:
-        """检测意图"""
-        scores = {}
+    def understand(self, query: str) -> UnderstandingResult:
+        """理解查询"""
+        query_lower = query.lower()
         
-        for intent, keywords in cls.INTENTS.items():
-            score = sum(1 for kw in keywords if kw in query)
-            if score > 0:
-                scores[intent] = score / len(keywords)
+        # 识别意图
+        intent = IntentType.UNKNOWN
+        max_matches = 0
         
-        if scores:
-            main_intent = max(scores, key=scores.get)
-            return main_intent, scores[main_intent]
+        for intent_type, keywords in self._intent_patterns.items():
+            matches = sum(1 for kw in keywords if kw in query_lower)
+            if matches > max_matches:
+                max_matches = matches
+                intent = intent_type
         
-        return "search", 0.5
+        # 提取实体
+        entities = self._extract_entities(query)
+        
+        confidence = min(max_matches / 3.0, 1.0) if max_matches > 0 else 0.0
+        
+        return UnderstandingResult(
+            intent=intent,
+            entities=entities,
+            confidence=confidence,
+            original_query=query
+        )
     
-    @classmethod
-    def _extract_entities(cls, query: str) -> List[Dict]:
+    def _extract_entities(self, query: str) -> Dict[str, Any]:
         """提取实体"""
-        entities = []
+        entities = {}
         
-        for entity_type, keywords in cls.ENTITIES.items():
-            for kw in keywords:
-                if kw in query:
-                    entities.append({
-                        "type": entity_type,
-                        "value": kw,
-                        "position": query.index(kw)
-                    })
+        # 时间实体
+        if "今天" in query:
+            entities["time"] = "today"
+        elif "明天" in query:
+            entities["time"] = "tomorrow"
         
-        return sorted(entities, key=lambda x: x["position"])
-    
-    @classmethod
-    def _extract_keywords(cls, query: str) -> List[str]:
-        """提取关键词"""
-        # 停用词
-        stopwords = {'的', '了', '是', '在', '我', '有', '和', '就', '不', '人', '都', '一', '一个', '上', '也', '很', '到', '说', '要', '去', '你', '会', '着', '没有', '看', '好', '自己', '这'}
+        # 目标实体
+        if "备忘录" in query or "note" in query.lower():
+            entities["target"] = "note"
+        elif "日程" in query or "calendar" in query.lower():
+            entities["target"] = "calendar"
         
-        # 分词（简单空格分词）
-        words = re.findall(r'[\u4e00-\u9fa5]+|[a-zA-Z]+', query)
-        
-        # 过滤停用词
-        keywords = [w for w in words if w not in stopwords and len(w) > 1]
-        
-        return keywords[:10]
-    
-    @classmethod
-    def _is_question(cls, query: str) -> bool:
-        """是否为问题"""
-        question_patterns = ['?', '？', '吗', '呢', '如何', '怎么', '为什么', '什么', '哪']
-        return any(p in query for p in question_patterns)
-    
-    @classmethod
-    def _estimate_complexity(cls, query: str) -> str:
-        """估计复杂度"""
-        words = len(query.split())
-        entities = len(cls._extract_entities(query))
-        
-        if words <= 3 and entities <= 1:
-            return "simple"
-        elif words > 10 or entities > 3:
-            return "complex"
-        else:
-            return "medium"
-    
-    @classmethod
-    def get_search_hints(cls, analysis: Dict) -> Dict:
-        """获取搜索提示"""
-        intent = analysis["intent"][0]
-        entities = analysis["entities"]
-        
-        hints = {
-            "use_vector": True,
-            "use_fts": True,
-            "use_llm": False,
-            "boost_types": [],
-        }
-        
-        # 根据意图调整
-        if intent == "search":
-            hints["use_llm"] = False
-        elif intent == "explain":
-            hints["use_llm"] = True
-        elif intent == "compare":
-            hints["use_llm"] = True
-        
-        # 根据实体调整
-        for entity in entities:
-            if entity["type"] == "config":
-                hints["boost_types"].append("instruction")
-            elif entity["type"] == "memory":
-                hints["boost_types"].append("episodic")
-        
-        return hints
+        return entities
+
+# 全局实例
+_understander: Optional[QueryUnderstander] = None
+
+def get_understander() -> QueryUnderstander:
+    global _understander
+    if _understander is None:
+        _understander = QueryUnderstander()
+    return _understander

@@ -136,7 +136,7 @@ class CompleteGuide:
 | L5 | 稳定治理层 | 守门器、架构检查、路由表 |
 | L6 | 基础设施层 | 路径解析、插件标准、服务包 |
 
-### 扩展层 (E0-E7)
+### 已归档 (已归档)
 | 层级 | 名称 | 核心功能 |
 |------|------|----------|
 | E7 | 战略目标层 | goal_engine.py - 四级目标管理 |
@@ -148,7 +148,7 @@ class CompleteGuide:
 | E1 | 合规信任层 | trust_center.py - 合规管理 |
 | E0 | 开放接入层 | integration_contract.py - 外部接入 |
 
-### 商业层 (X0-X7)
+### 已归档 (已归档)
 | 层级 | 名称 | 核心功能 |
 |------|------|----------|
 | X7 | 生态伙伴层 | partner_manager.py - 伙伴管理 |
@@ -160,7 +160,7 @@ class CompleteGuide:
 | X1 | 商业封装层 | packaging_manager.py - 商业封装 |
 | X0 | 版本发布层 | release_manager.py - 版本管理 |
 
-### 运维层 (Y1-Y3)
+### 已归档 (已归档)
 | 层级 | 名称 | 核心功能 |
 |------|------|----------|
 | Y3 | 运维监控层 | dashboard.py - 监控面板 |
@@ -168,7 +168,7 @@ class CompleteGuide:
 | Y1 | 模板复制层 | replication_engine.py - 模板复制 |
 
 ### 架构统计
-- **总层级**: 25层 (L1-L6 + E0-E7 + X0-X7 + Y1-Y3)
+- **总层级**: 六层 (L1-L6)
 - **技能**: 175个
 - **工作流**: 8个
 - **服务包**: 7个
@@ -583,7 +583,7 @@ class CompleteGuide:
 |------|------|
 | cost_center.py | 成本核算中心 |
 
-### 商业层 (business/)
+### 已归档 (business/)
 | 模块 | 说明 |
 |------|------|
 | packaging_manager.py | 商业封装管理 |
@@ -593,12 +593,12 @@ class CompleteGuide:
 |------|------|
 | release_manager.py | 版本发布管理 |
 
-### 运维层 (ops/)
+### 已归档 (ops/)
 | 模块 | 说明 |
 |------|------|
 | dashboard.py | 运维监控面板 |
 
-### 扩展层 (extension/)
+### 已归档 (extension/)
 | 模块 | 说明 |
 |------|------|
 | contract_manager.py | 扩展协议管理 |

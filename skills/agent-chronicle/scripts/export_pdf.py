@@ -15,6 +15,7 @@ import json
 import re
 from datetime import datetime
 from pathlib import Path
+from infrastructure.path_resolver import get_project_root
 from html import escape
 
 try:
@@ -65,8 +66,8 @@ def get_workspace_root():
     # Try common locations
     candidates = [
         Path.cwd(),
-        Path.home() / "clawd",
-        Path.home() / ".openclaw" / "workspace",
+        get_project_root() / "clawd",
+        get_project_root(),
     ]
     for path in candidates:
         if (path / "memory").exists():

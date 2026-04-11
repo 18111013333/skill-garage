@@ -23,12 +23,13 @@ import re
 import sys
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from infrastructure.path_resolver import get_project_root
 from urllib.parse import urlparse
 
 import requests
 
 BASE_URL = "https://gamma-api.polymarket.com"
-DATA_DIR = Path.home() / ".polymarket"
+DATA_DIR = get_project_root() / ".polymarket"
 
 
 def ensure_data_dir():

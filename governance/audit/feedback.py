@@ -1,111 +1,65 @@
-"""反馈学习 - 记录用户点击，优化排序"""
-import json
-from pathlib import Path
-from datetime import datetime
-from typing import Dict, List, Optional
+#!/usr/bin/env python3
+"""
+feedback - V4.3.2 融合版
 
-class FeedbackLearner:
-    def __init__(self, feedback_dir: str):
-        self.feedback_dir = Path(feedback_dir)
-        self.feedback_dir.mkdir(parents=True, exist_ok=True)
-        self.feedback_file = self.feedback_dir / "feedback.json"
-        self.feedback = self._load()
+融合自:
+- governance/audit/feedback.py
+- memory_context/feedback/feedback.py
+
+此模块为统一实现，其他位置通过兼容层引用
+"""
+
+from typing import Dict, List, Any, Optional
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+
+class FeedbackType(Enum):
+    POSITIVE = "positive"
+    NEGATIVE = "negative"
+    NEUTRAL = "neutral"
+
+@dataclass
+class Feedback:
+    """反馈"""
+    id: str
+    type: FeedbackType
+    content: str
+    source: str
+    timestamp: datetime = field(default_factory=datetime.now)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+class FeedbackManager:
+    """反馈管理器"""
     
-    def _load(self) -> Dict:
-        if self.feedback_file.exists():
-            try:
-                return json.loads(self.feedback_file.read_text())
-            except:
-                pass
-        return {"clicks": {}, "preferences": {}}
+    def __init__(self):
+        self._feedbacks: List[Feedback] = []
     
-    def _save(self):
-        self.feedback_file.write_text(json.dumps(self.feedback, ensure_ascii=False))
+    def add(self, feedback: Feedback):
+        """添加反馈"""
+        self._feedbacks.append(feedback)
     
-    def record_click(self, query: str, result_id: str, position: int):
-        """记录点击"""
-        query_key = self._hash(query)
-        
-        if query_key not in self.feedback["clicks"]:
-            self.feedback["clicks"][query_key] = {
-                "query": query,
-                "clicks": []
-            }
-        
-        self.feedback["clicks"][query_key]["clicks"].append({
-            "result_id": result_id,
-            "position": position,
-            "time": datetime.now().isoformat()
-        })
-        
-        self._save()
+    def get_by_type(self, feedback_type: FeedbackType) -> List[Feedback]:
+        """按类型获取反馈"""
+        return [f for f in self._feedbacks if f.type == feedback_type]
     
-    def record_preference(self, query: str, good_result_ids: List[str], bad_result_ids: List[str] = None):
-        """记录偏好"""
-        query_key = self._hash(query)
-        
-        self.feedback["preferences"][query_key] = {
-            "query": query,
-            "good": good_result_ids,
-            "bad": bad_result_ids or [],
-            "time": datetime.now().isoformat()
-        }
-        
-        self._save()
+    def get_by_source(self, source: str) -> List[Feedback]:
+        """按来源获取反馈"""
+        return [f for f in self._feedbacks if f.source == source]
     
-    def get_boosted_ids(self, query: str) -> List[str]:
-        """获取应提升的结果ID"""
-        query_key = self._hash(query)
-        
-        if query_key in self.feedback["clicks"]:
-            clicks = self.feedback["clicks"][query_key]["clicks"]
-            # 统计点击次数
-            click_counts = {}
-            for c in clicks:
-                rid = c["result_id"]
-                click_counts[rid] = click_counts.get(rid, 0) + 1
-            
-            # 返回点击次数最多的
-            sorted_ids = sorted(click_counts.keys(), key=lambda x: click_counts[x], reverse=True)
-            return sorted_ids
-        
-        return []
+    def get_all(self) -> List[Feedback]:
+        """获取所有反馈"""
+        return self._feedbacks.copy()
     
-    def get_penalty_ids(self, query: str) -> List[str]:
-        """获取应降权的结果ID"""
-        query_key = self._hash(query)
-        
-        if query_key in self.feedback["preferences"]:
-            return self.feedback["preferences"][query_key].get("bad", [])
-        
-        return []
-    
-    def apply_feedback(self, query: str, results: List[Dict]) -> List[Dict]:
-        """应用反馈到结果"""
-        boosted = self.get_boosted_ids(query)
-        penalized = self.get_penalty_ids(query)
-        
-        for r in results:
-            rid = r.get("record_id", "")
-            
-            # 提升被点击的结果
-            if rid in boosted:
-                r["feedback_boost"] = 0.1
-            
-            # 降权被标记为差的结果
-            if rid in penalized:
-                r["feedback_penalty"] = -0.1
-        
-        # 重新排序
-        results.sort(key=lambda x: (
-            x.get("feedback_boost", 0),
-            x.get("weighted_score", x.get("score", 0)),
-            -x.get("feedback_penalty", 0)
-        ), reverse=True)
-        
-        return results
-    
-    @staticmethod
-    def _hash(text: str) -> str:
-        import hashlib
-        return hashlib.md5(text.lower().encode()).hexdigest()[:16]
+    def clear(self):
+        """清空反馈"""
+        self._feedbacks.clear()
+
+# 全局实例
+_manager: Optional[FeedbackManager] = None
+
+def get_feedback_manager() -> FeedbackManager:
+    global _manager
+    if _manager is None:
+        _manager = FeedbackManager()
+    return _manager

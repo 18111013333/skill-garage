@@ -4,6 +4,7 @@ import json
 import hashlib
 import urllib.request
 from pathlib import Path
+from infrastructure.path_resolver import get_project_root
 from typing import List, Optional
 
 class EmbeddingEngine:
@@ -14,7 +15,7 @@ class EmbeddingEngine:
         self.dimensions = dimensions
         self.cache = {}
         self.precomputed = {}
-        self.cache_dir = Path.home() / ".openclaw" / "memory-tdai" / ".cache"
+        self.cache_dir = get_project_root() / "memory-tdai" / ".cache"
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self._load_precomputed()
     
