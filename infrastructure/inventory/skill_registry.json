@@ -1,6 +1,6 @@
 {
   "version": "4.3.2",
-  "updated": "2026-04-11",
+  "updated": "2026-04-12",
   "source": "唯一真源 - 由 skill_adapter_gateway 自动生成",
   "skills": {
     "screenshot": {
@@ -2963,14 +2963,16 @@
     }
   },
   "categories": {
-    "search": "搜索类",
-    "document": "文档处理",
-    "image": "图像处理",
-    "system": "系统工具",
-    "communication": "通信工具",
-    "data": "数据处理",
-    "automation": "自动化",
-    "other": "其他"
+    "other": 91,
+    "data": 6,
+    "search": 30,
+    "image": 6,
+    "document": 8,
+    "system": 2,
+    "automation": 2,
+    "communication": 1,
+    "ecommerce": 8,
+    "unknown": 2
   },
   "risk_levels": {
     "low": "低风险 - 无需授权",
@@ -3117,5 +3119,6 @@
         "data_dashboard"
       ]
     }
-  }
+  },
+  "total_skills": 156
 }
