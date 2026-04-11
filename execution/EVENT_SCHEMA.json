@@ -1,0 +1,286 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Event Schema",
+  "description": "事件对象正式建模 - 终极鸽子王 V27.0",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["event_id", "tenant_id", "source", "event_type", "timestamp", "status"],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "事件唯一标识符",
+      "pattern": "^evt_[a-zA-Z0-9]{16}$"
+    },
+    "tenant_id": {
+      "type": "string",
+      "description": "所属租户ID",
+      "pattern": "^tenant_[a-zA-Z0-9]{16}$"
+    },
+    "source": {
+      "type": "object",
+      "required": ["source_type", "source_id"],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": ["system", "user", "integration", "skill", "schedule", "external", "evolution"],
+          "description": "事件源类型"
+        },
+        "source_id": {
+          "type": "string",
+          "description": "事件源ID"
+        },
+        "source_name": {
+          "type": "string",
+          "description": "事件源名称"
+        },
+        "source_version": {
+          "type": "string",
+          "description": "事件源版本"
+        }
+      },
+      "description": "事件源信息"
+    },
+    "event_type": {
+      "type": "string",
+      "description": "事件类型",
+      "examples": ["task.created", "task.completed", "memory.written", "skill.executed", "approval.requested"]
+    },
+    "event_category": {
+      "type": "string",
+      "enum": ["lifecycle", "operation", "governance", "security", "integration", "evolution", "alert"],
+      "description": "事件类别"
+    },
+    "payload_class": {
+      "type": "string",
+      "description": "负载类型标识",
+      "pattern": "^[a-zA-Z0-9_.]+$"
+    },
+    "payload": {
+      "type": "object",
+      "description": "事件负载数据",
+      "additionalProperties": true
+    },
+    "payload_schema_ref": {
+      "type": "string",
+      "description": "负载Schema引用",
+      "format": "uri"
+    },
+    "sensitivity": {
+      "type": "string",
+      "enum": ["public", "internal", "confidential", "restricted", "critical"],
+      "description": "敏感级别"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "事件发生时间（UTC）"
+    },
+    "ingestion_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "事件入库时间（UTC）"
+    },
+    "correlation_id": {
+      "type": "string",
+      "description": "关联ID（用于追踪相关事件链）",
+      "pattern": "^corr_[a-zA-Z0-9]{16}$"
+    },
+    "causation_id": {
+      "type": "string",
+      "description": "因果ID（标识导致本事件的事件）",
+      "pattern": "^evt_[a-zA-Z0-9]{16}$"
+    },
+    "trace_context": {
+      "type": "object",
+      "properties": {
+        "trace_id": { "type": "string" },
+        "span_id": { "type": "string" },
+        "parent_span_id": { "type": "string" }
+      },
+      "description": "分布式追踪上下文"
+    },
+    "retry_policy": {
+      "type": "object",
+      "properties": {
+        "max_retries": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 3
+        },
+        "retry_interval_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 60
+        },
+        "retry_interval_multiplier": {
+          "type": "number",
+          "minimum": 1,
+          "default": 2
+        },
+        "max_retry_interval_seconds": {
+          "type": "integer",
+          "minimum": 60,
+          "default": 3600
+        },
+        "dead_letter_after_max_retries": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "description": "重试策略"
+    },
+    "processing": {
+      "type": "object",
+      "properties": {
+        "current_retry_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "last_retry_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "next_retry_time": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "processing_started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "processing_completed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "processor_id": {
+          "type": "string"
+        },
+        "processing_duration_ms": {
+          "type": "integer"
+        }
+      },
+      "description": "处理状态"
+    },
+    "routing": {
+      "type": "object",
+      "properties": {
+        "target_handlers": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "routed_to": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "handler_id": { "type": "string" },
+              "routed_at": { "type": "string", "format": "date-time" },
+              "queue": { "type": "string" }
+            }
+          }
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["critical", "high", "normal", "low"],
+          "default": "normal"
+        },
+        "ttl_seconds": {
+          "type": "integer",
+          "minimum": 60,
+          "default": 86400
+        }
+      },
+      "description": "路由信息"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "processing", "completed", "failed", "dead_letter", "expired"],
+      "description": "事件状态"
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "error_code": { "type": "string" },
+        "error_message": { "type": "string" },
+        "error_details": { "type": "object" },
+        "stack_trace": { "type": "string" },
+        "recoverable": { "type": "boolean" }
+      },
+      "description": "错误信息"
+    },
+    "audit": {
+      "type": "object",
+      "properties": {
+        "created_by": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "modified_by": { "type": "string" },
+        "modified_at": { "type": "string", "format": "date-time" },
+        "version": { "type": "integer", "minimum": 1 }
+      },
+      "description": "审计信息"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "扩展元数据"
+    }
+  },
+  "event_categories": {
+    "lifecycle": {
+      "description": "生命周期事件",
+      "examples": ["entity.created", "entity.updated", "entity.deleted"],
+      "auto_process": true
+    },
+    "operation": {
+      "description": "操作事件",
+      "examples": ["task.started", "task.completed", "skill.executed"],
+      "auto_process": true
+    },
+    "governance": {
+      "description": "治理事件",
+      "examples": ["policy.violated", "approval.requested", "audit.triggered"],
+      "auto_process": false,
+      "requires_review": true
+    },
+    "security": {
+      "description": "安全事件",
+      "examples": ["auth.failed", "access.denied", "anomaly.detected"],
+      "auto_process": false,
+      "requires_review": true,
+      "priority": "critical"
+    },
+    "integration": {
+      "description": "集成事件",
+      "examples": ["webhook.received", "api.called", "sync.completed"],
+      "auto_process": true
+    },
+    "evolution": {
+      "description": "进化事件",
+      "examples": ["model.upgraded", "skill.learned", "config.optimized"],
+      "auto_process": false,
+      "requires_approval": true
+    },
+    "alert": {
+      "description": "告警事件",
+      "examples": ["threshold.exceeded", "error.spike", "health.degraded"],
+      "auto_process": true,
+      "priority": "high"
+    }
+  },
+  "sensitivity_levels": {
+    "public": { "description": "公开", "retention_days": 30 },
+    "internal": { "description": "内部", "retention_days": 90 },
+    "confidential": { "description": "机密", "retention_days": 180, "encryption": true },
+    "restricted": { "description": "受限", "retention_days": 365, "encryption": true, "access_audit": true },
+    "critical": { "description": "关键", "retention_days": 365, "encryption": true, "access_audit": true, "alert_on_access": true }
+  },
+  "status_transitions": {
+    "pending": ["processing", "expired"],
+    "processing": ["completed", "failed", "dead_letter"],
+    "failed": ["pending", "dead_letter"],
+    "completed": [],
+    "dead_letter": ["pending"],
+    "expired": []
+  }
+}

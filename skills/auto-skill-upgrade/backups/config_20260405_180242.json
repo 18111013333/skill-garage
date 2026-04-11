@@ -1,0 +1,105 @@
+{
+  "version": "1.0.0",
+  "lastUpdate": "2026-04-05T17:51:00+08:00",
+  "categories": {
+    "core": [
+      "self-improvement",
+      "ontology",
+      "memory-setup",
+      "skill-creator",
+      "find-skills"
+    ],
+    "xiaoyi": [
+      "xiaoyi-web-search",
+      "xiaoyi-image-understanding",
+      "xiaoyi-doc-convert",
+      "xiaoyi-file-upload",
+      "xiaoyi-image-search",
+      "xiaoyi-report"
+    ],
+    "document": [
+      "docx",
+      "pdf",
+      "pptx",
+      "markitdown",
+      "excel-analysis"
+    ],
+    "multimedia": [
+      "seedream-image-gen",
+      "tts"
+    ],
+    "search": [
+      "deep-search-and-insight-synthesize",
+      "weather"
+    ],
+    "development": [
+      "webapp-testing",
+      "vercel-react-best-practices",
+      "agent-builder"
+    ],
+    "other": [
+      "copywriter",
+      "personas",
+      "best-minds",
+      "article-writer",
+      "post-job",
+      "good-txt-to-hwreader"
+    ]
+  },
+  "chains": {
+    "document-convert": [
+      "xiaoyi-file-upload",
+      "xiaoyi-doc-convert"
+    ],
+    "image-pipeline": [
+      "xiaoyi-image-search",
+      "xiaoyi-image-understanding",
+      "seedream-image-gen"
+    ],
+    "search-pipeline": [
+      "xiaoyi-web-search",
+      "deep-search-and-insight-synthesize"
+    ],
+    "report-generation": [
+      "xiaoyi-web-search",
+      "deep-search-and-insight-synthesize",
+      "xiaoyi-report",
+      "docx"
+    ]
+  },
+  "priority": {
+    "xiaoyi": 100,
+    "core": 90,
+    "document": 80,
+    "multimedia": 70,
+    "search": 60,
+    "development": 50,
+    "other": 40
+  },
+  "integrations": [
+    {
+      "name": "document-workflow",
+      "description": "文档处理工作流",
+      "skills": ["xiaoyi-file-upload", "xiaoyi-doc-convert", "docx", "pdf"],
+      "priority": 85
+    },
+    {
+      "name": "image-workflow",
+      "description": "图像处理工作流",
+      "skills": ["xiaoyi-image-search", "xiaoyi-image-understanding", "seedream-image-gen"],
+      "priority": 75
+    },
+    {
+      "name": "research-workflow",
+      "description": "研究调研工作流",
+      "skills": ["xiaoyi-web-search", "deep-search-and-insight-synthesize", "xiaoyi-report"],
+      "priority": 80
+    }
+  ],
+  "autoUpgrade": {
+    "enabled": true,
+    "schedule": "weekly",
+    "lastRun": null,
+    "nextRun": null
+  }
+}

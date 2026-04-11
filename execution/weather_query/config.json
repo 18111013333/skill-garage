@@ -1,0 +1,32 @@
+{
+  "skill_id": "skill_weather_query_v1",
+  "version": "1.0.0",
+  "entry_layer": "L4",
+  "timeout_ms": 10000,
+  "api": {
+    "provider": "mock",
+    "base_url": "https://api.example.com/weather",
+    "api_key": "${WEATHER_API_KEY}"
+  },
+  "cache": {
+    "enabled": true,
+    "ttl_seconds": 1800
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "json"
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics": ["latency", "success_rate", "error_count"]
+  },
+  "fallback": {
+    "strategy": "cache->degrade->abort",
+    "degrade_output": {
+      "temperature": "未知",
+      "weather": "服务暂时不可用",
+      "humidity": 0,
+      "wind": 0
+    }
+  }
+}

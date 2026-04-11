@@ -1,0 +1,142 @@
+{
+  "version": "2.0.0",
+  "lastUpdate": "2026-04-05T18:55:03+08:00",
+  "categories": {
+    "xiaoyi": [
+      "xiaoyi-web-search",
+      "xiaoyi-image-understanding",
+      "xiaoyi-image-search",
+      "xiaoyi-doc-convert",
+      "xiaoyi-file-upload",
+      "xiaoyi-report"
+    ],
+    "core": [
+      "self-improving-agent",
+      "ontology",
+      "memory-setup",
+      "find-skills",
+      "skill-creator",
+      "auto-skill-upgrade",
+      "moltguard"
+    ],
+    "document": [
+      "docx",
+      "pdf",
+      "pptx",
+      "excel-analysis",
+      "markitdown",
+      "nano-pdf",
+      "docker"
+    ],
+    "development": [
+      "git",
+      "react-best-practices",
+      "webapp-testing",
+      "openclaw-skills-agent-builder-1.0.3"
+    ],
+    "integration": [
+      "api-gateway",
+      "mcporter",
+      "data-analysis"
+    ],
+    "communication": [
+      "imap-smtp-email"
+    ],
+    "content": [
+      "article-writer",
+      "copywriter",
+      "personas",
+      "best-minds"
+    ],
+    "search": [
+      "deep-search-and-insight-synthesize",
+      "calcom-cal.com-web-design-guidelines-1.0.2"
+    ],
+    "multimedia": [
+      "seedream-image_gen"
+    ],
+    "utility": [
+      "weather",
+      "post-job",
+      "good-txt-to-hwreader",
+      "himalaya",
+      "su-lan-paper-daily-skill"
+    ]
+  },
+  "chains": {
+    "document-convert": {
+      "description": "文档格式转换工作流",
+      "entry": "xiaoyi-doc-convert",
+      "skills": ["xiaoyi-file-upload", "docx", "pdf", "pptx", "markitdown"],
+      "priority": 85
+    },
+    "image-pipeline": {
+      "description": "图像处理工作流",
+      "entry": "xiaoyi-image-understanding",
+      "skills": ["xiaoyi-image-search", "seedream-image_gen"],
+      "priority": 75
+    },
+    "search-pipeline": {
+      "description": "搜索调研工作流",
+      "entry": "deep-search-and-insight-synthesize",
+      "skills": ["xiaoyi-web-search"],
+      "priority": 80
+    },
+    "api-integration": {
+      "description": "API 集成工作流",
+      "entry": "api-gateway",
+      "skills": ["mcporter"],
+      "priority": 90
+    },
+    "devops": {
+      "description": "开发运维工作流",
+      "entry": "git",
+      "skills": ["docker", "webapp-testing"],
+      "priority": 70
+    },
+    "self-evolution": {
+      "description": "自进化系统",
+      "entry": "self-improving-agent",
+      "skills": ["auto-skill-upgrade", "skill-creator", "find-skills", "ontology", "moltguard"],
+      "priority": 95
+    }
+  },
+  "priority": {
+    "xiaoyi": 100,
+    "core": 95,
+    "integration": 90,
+    "document": 80,
+    "development": 75,
+    "search": 70,
+    "communication": 65,
+    "multimedia": 60,
+    "content": 55,
+    "utility": 50
+  },
+  "newSkills": [
+    {"name": "api-gateway", "installed": "2026-04-05", "category": "integration", "value": "连接100+ API"},
+    {"name": "data-analysis", "installed": "2026-04-05", "category": "integration", "value": "数据分析可视化"},
+    {"name": "docker", "installed": "2026-04-05", "category": "document", "value": "容器管理"},
+    {"name": "git", "installed": "2026-04-05", "category": "development", "value": "版本控制"},
+    {"name": "imap-smtp-email", "installed": "2026-04-05", "category": "communication", "value": "邮件收发"},
+    {"name": "mcporter", "installed": "2026-04-05", "category": "integration", "value": "MCP服务器调用"},
+    {"name": "moltguard", "installed": "2026-04-05", "category": "core", "value": "安全防护"}
+  ],
+  "statistics": {
+    "total": 40,
+    "byCategory": {
+      "xiaoyi": 6,
+      "core": 7,
+      "document": 7,
+      "development": 4,
+      "integration": 3,
+      "communication": 1,
+      "content": 4,
+      "search": 2,
+      "multimedia": 1,
+      "utility": 5
+    },
+    "newInstalled": 7,
+    "growthRate": "21.9%"
+  }
+}

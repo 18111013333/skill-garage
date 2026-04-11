@@ -1,0 +1,188 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-04-06T12:40:00+08:00",
+  "description": "会话摘要数据结构定义",
+  "schema": {
+    "sessionId": {
+      "type": "string",
+      "required": true,
+      "description": "会话唯一标识"
+    },
+    "session_goal": {
+      "type": "object",
+      "required": true,
+      "description": "会话目标",
+      "properties": {
+        "primary": {
+          "type": "string",
+          "description": "主要目标"
+        },
+        "secondary": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "次要目标列表"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["in_progress", "completed", "abandoned", "blocked"],
+          "description": "目标状态"
+        }
+      }
+    },
+    "hard_constraints": {
+      "type": "array",
+      "required": true,
+      "description": "硬约束列表（必须遵守）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "content": { "type": "string" },
+          "source": { "type": "string" },
+          "timestamp": { "type": "datetime" },
+          "status": { "type": "string", "enum": ["active", "released"] }
+        }
+      }
+    },
+    "soft_preferences": {
+      "type": "array",
+      "required": true,
+      "description": "软偏好列表（尽量满足）",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "content": { "type": "string" },
+          "weight": { "type": "number", "min": 0, "max": 1 },
+          "source": { "type": "string" }
+        }
+      }
+    },
+    "open_loops": {
+      "type": "array",
+      "required": true,
+      "description": "未完成事项",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "content": { "type": "string" },
+          "priority": { "type": "string", "enum": ["P0", "P1", "P2", "P3"] },
+          "blocked_by": { "type": "array", "items": { "type": "string" } },
+          "created_at": { "type": "datetime" }
+        }
+      }
+    },
+    "decisions_made": {
+      "type": "array",
+      "required": true,
+      "description": "已做决策",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "decision": { "type": "string" },
+          "rationale": { "type": "string" },
+          "alternatives": { "type": "array", "items": { "type": "string" } },
+          "timestamp": { "type": "datetime" },
+          "reversible": { "type": "boolean" }
+        }
+      }
+    },
+    "pending_questions": {
+      "type": "array",
+      "required": true,
+      "description": "待解答问题",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "question": { "type": "string" },
+          "context": { "type": "string" },
+          "asked_at": { "type": "datetime" },
+          "status": { "type": "string", "enum": ["pending", "answered", "withdrawn"] }
+        }
+      }
+    },
+    "risk_notes": {
+      "type": "array",
+      "required": true,
+      "description": "风险标记",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "description": { "type": "string" },
+          "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+          "mitigation": { "type": "string" },
+          "status": { "type": "string", "enum": ["active", "mitigated", "resolved"] }
+        }
+      }
+    },
+    "key_entities": {
+      "type": "array",
+      "required": false,
+      "description": "关键实体",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "mentions": { "type": "integer" }
+        }
+      }
+    },
+    "token_usage": {
+      "type": "object",
+      "required": false,
+      "description": "Token使用统计",
+      "properties": {
+        "total_input": { "type": "integer" },
+        "total_output": { "type": "integer" },
+        "by_turn": { "type": "array" }
+      }
+    },
+    "timestamp": {
+      "type": "object",
+      "required": true,
+      "description": "时间戳",
+      "properties": {
+        "created_at": { "type": "datetime" },
+        "updated_at": { "type": "datetime" },
+        "ended_at": { "type": "datetime" }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": false,
+      "description": "元数据",
+      "properties": {
+        "channel": { "type": "string" },
+        "model": { "type": "string" },
+        "user_id": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "storage": {
+    "format": "jsonl",
+    "path": "memory/session-summaries/",
+    "retention": "30 days",
+    "compression": "gzip after 7 days"
+  },
+  "validation": {
+    "strictMode": true,
+    "requiredFields": [
+      "sessionId",
+      "session_goal",
+      "hard_constraints",
+      "soft_preferences",
+      "open_loops",
+      "decisions_made",
+      "pending_questions",
+      "risk_notes",
+      "timestamp"
+    ]
+  }
+}

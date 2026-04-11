@@ -1,0 +1,243 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CONNECTOR_SCHEMA",
+  "description": "连接器对象定义",
+  "version": "1.0.0",
+  "updated_at": "2026-04-07T12:00:00+08:00",
+
+  "connector_definition": {
+    "required_fields": [
+      "connector_id",
+      "connector_name",
+      "connector_type",
+      "auth_requirements",
+      "scopes",
+      "data_classes_accessed",
+      "write_capability",
+      "event_capability",
+      "approval_requirements",
+      "lifecycle_status"
+    ],
+
+    "field_definitions": {
+      "connector_id": {
+        "type": "string",
+        "description": "连接器唯一标识",
+        "pattern": "^conn_[a-z0-9_]+$",
+        "example": "conn_google_drive"
+      },
+      "connector_name": {
+        "type": "string",
+        "description": "连接器显示名称",
+        "example": "Google Drive"
+      },
+      "connector_type": {
+        "type": "string",
+        "enum": ["storage", "communication", "database", "api", "event", "payment", "analytics", "ai_service", "other"],
+        "description": "连接器类型"
+      },
+      "auth_requirements": {
+        "type": "object",
+        "properties": {
+          "auth_type": {"enum": ["oauth2", "api_key", "basic", "certificate", "none"]},
+          "oauth_provider": {"type": "string"},
+          "scopes_required": {"type": "array", "items": {"type": "string"}},
+          "token_storage": {"enum": ["platform", "user", "session"]}
+        }
+      },
+      "scopes": {
+        "type": "object",
+        "properties": {
+          "read_scope": {"type": "array", "items": {"type": "string"}},
+          "write_scope": {"type": "array", "items": {"type": "string"}},
+          "admin_scope": {"type": "array", "items": {"type": "string"}}
+        }
+      },
+      "data_classes_accessed": {
+        "type": "array",
+        "items": {"enum": ["public", "internal", "confidential", "restricted", "pii", "financial", "health"]},
+        "description": "访问的数据分类级别"
+      },
+      "write_capability": {
+        "type": "object",
+        "properties": {
+          "can_create": {"type": "boolean"},
+          "can_update": {"type": "boolean"},
+          "can_delete": {"type": "boolean"},
+          "requires_confirmation": {"type": "boolean"}
+        }
+      },
+      "event_capability": {
+        "type": "object",
+        "properties": {
+          "can_subscribe": {"type": "boolean"},
+          "can_publish": {"type": "boolean"},
+          "event_types": {"type": "array", "items": {"type": "string"}}
+        }
+      },
+      "approval_requirements": {
+        "type": "object",
+        "properties": {
+          "tenant_approval": {"type": "boolean"},
+          "user_consent": {"type": "boolean"},
+          "security_review": {"type": "boolean"},
+          "compliance_review": {"type": "boolean"}
+        }
+      },
+      "lifecycle_status": {
+        "type": "string",
+        "enum": ["design", "review", "canary", "active", "restricted", "deprecated", "retired"],
+        "description": "生命周期状态"
+      }
+    }
+  },
+
+  "connectors": [
+    {
+      "connector_id": "conn_google_drive",
+      "connector_name": "Google Drive",
+      "connector_type": "storage",
+      "auth_requirements": {
+        "auth_type": "oauth2",
+        "oauth_provider": "google",
+        "scopes_required": ["https://www.googleapis.com/auth/drive.readonly", "https://www.googleapis.com/auth/drive.file"],
+        "token_storage": "platform"
+      },
+      "scopes": {
+        "read_scope": ["files.read", "folders.read"],
+        "write_scope": ["files.write", "folders.write"],
+        "admin_scope": ["drive.admin"]
+      },
+      "data_classes_accessed": ["internal", "confidential"],
+      "write_capability": {
+        "can_create": true,
+        "can_update": true,
+        "can_delete": true,
+        "requires_confirmation": true
+      },
+      "event_capability": {
+        "can_subscribe": true,
+        "can_publish": false,
+        "event_types": ["file.created", "file.updated", "file.deleted"]
+      },
+      "approval_requirements": {
+        "tenant_approval": true,
+        "user_consent": true,
+        "security_review": true,
+        "compliance_review": false
+      },
+      "lifecycle_status": "active"
+    },
+    {
+      "connector_id": "conn_slack",
+      "connector_name": "Slack",
+      "connector_type": "communication",
+      "auth_requirements": {
+        "auth_type": "oauth2",
+        "oauth_provider": "slack",
+        "scopes_required": ["chat:read", "chat:write", "channels:read"],
+        "token_storage": "platform"
+      },
+      "scopes": {
+        "read_scope": ["messages.read", "channels.read"],
+        "write_scope": ["messages.write"],
+        "admin_scope": ["workspace.admin"]
+      },
+      "data_classes_accessed": ["internal"],
+      "write_capability": {
+        "can_create": true,
+        "can_update": false,
+        "can_delete": false,
+        "requires_confirmation": false
+      },
+      "event_capability": {
+        "can_subscribe": true,
+        "can_publish": true,
+        "event_types": ["message.received", "channel.joined"]
+      },
+      "approval_requirements": {
+        "tenant_approval": true,
+        "user_consent": true,
+        "security_review": true,
+        "compliance_review": false
+      },
+      "lifecycle_status": "active"
+    },
+    {
+      "connector_id": "conn_mysql",
+      "connector_name": "MySQL Database",
+      "connector_type": "database",
+      "auth_requirements": {
+        "auth_type": "basic",
+        "token_storage": "platform"
+      },
+      "scopes": {
+        "read_scope": ["tables.read", "views.read"],
+        "write_scope": ["tables.write", "tables.insert"],
+        "admin_scope": ["database.admin"]
+      },
+      "data_classes_accessed": ["confidential", "restricted"],
+      "write_capability": {
+        "can_create": true,
+        "can_update": true,
+        "can_delete": true,
+        "requires_confirmation": true
+      },
+      "event_capability": {
+        "can_subscribe": false,
+        "can_publish": false,
+        "event_types": []
+      },
+      "approval_requirements": {
+        "tenant_approval": true,
+        "user_consent": false,
+        "security_review": true,
+        "compliance_review": true
+      },
+      "lifecycle_status": "active"
+    },
+    {
+      "connector_id": "conn_openai",
+      "connector_name": "OpenAI API",
+      "connector_type": "ai_service",
+      "auth_requirements": {
+        "auth_type": "api_key",
+        "token_storage": "platform"
+      },
+      "scopes": {
+        "read_scope": ["models.read"],
+        "write_scope": ["completions.write", "embeddings.write"],
+        "admin_scope": []
+      },
+      "data_classes_accessed": ["internal"],
+      "write_capability": {
+        "can_create": false,
+        "can_update": false,
+        "can_delete": false,
+        "requires_confirmation": false
+      },
+      "event_capability": {
+        "can_subscribe": false,
+        "can_publish": false,
+        "event_types": []
+      },
+      "approval_requirements": {
+        "tenant_approval": true,
+        "user_consent": false,
+        "security_review": true,
+        "compliance_review": false
+      },
+      "lifecycle_status": "active"
+    }
+  ],
+
+  "lifecycle_transitions": {
+    "design": {"next": ["review"], "prev": []},
+    "review": {"next": ["canary", "design"], "prev": ["design"]},
+    "canary": {"next": ["active", "review"], "prev": ["review"]},
+    "active": {"next": ["restricted", "deprecated"], "prev": ["canary"]},
+    "restricted": {"next": ["active", "deprecated"], "prev": ["active"]},
+    "deprecated": {"next": ["retired"], "prev": ["active", "restricted"]},
+    "retired": {"next": [], "prev": ["deprecated"]}
+  }
+}

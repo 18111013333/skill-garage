@@ -1,0 +1,326 @@
+{
+  "version": "3.0.0",
+  "lastUpdate": "2026-04-05T23:18:28+08:00",
+  "statistics": {
+    "total": 106,
+    "newInstalled": 47,
+    "growthRate": "79.7%"
+  },
+  "categories": {
+    "xiaoyi": {
+      "priority": 100,
+      "skills": [
+        "xiaoyi-web-search",
+        "xiaoyi-image-understanding",
+        "xiaoyi-image-search",
+        "xiaoyi-doc-convert",
+        "xiaoyi-file-upload",
+        "xiaoyi-report"
+      ],
+      "count": 6
+    },
+    "core": {
+      "priority": 95,
+      "skills": [
+        "self-improving-agent",
+        "ontology",
+        "memory-setup",
+        "find-skills",
+        "skill-creator",
+        "auto-skill-upgrade",
+        "moltguard"
+      ],
+      "count": 7
+    },
+    "integration": {
+      "priority": 90,
+      "skills": [
+        "api-gateway",
+        "mcporter",
+        "data-analysis",
+        "free-ride",
+        "clawdhub",
+        "skill-finder",
+        "command-center"
+      ],
+      "count": 7
+    },
+    "search": {
+      "priority": 85,
+      "skills": [
+        "deep-search-and-insight-synthesize",
+        "prismfy-search",
+        "web-search-exa",
+        "web-search-plus",
+        "cn-web-search",
+        "zhipu-web-search",
+        "tavily-search-skill",
+        "x-search",
+        "keyword-research",
+        "market-research",
+        "research-cog",
+        "web-browsing",
+        "web-scraper",
+        "web-scraping"
+      ],
+      "count": 14
+    },
+    "document": {
+      "priority": 80,
+      "skills": [
+        "docx",
+        "pdf",
+        "pptx",
+        "excel-analysis",
+        "markitdown",
+        "nano-pdf",
+        "docker",
+        "paddleocr-doc-parsing",
+        "quality-documentation-manager"
+      ],
+      "count": 9
+    },
+    "multimedia": {
+      "priority": 75,
+      "skills": [
+        "seedream-image_gen",
+        "image-cog",
+        "image-gen",
+        "image",
+        "audio-cog",
+        "video-agent",
+        "video-transcript-downloader"
+      ],
+      "count": 7
+    },
+    "development": {
+      "priority": 70,
+      "skills": [
+        "git",
+        "react-best-practices",
+        "webapp-testing",
+        "openclaw-skills-agent-builder-1.0.3",
+        "code-analysis-skills"
+      ],
+      "count": 5
+    },
+    "finance": {
+      "priority": 65,
+      "skills": [
+        "mx-finance-data",
+        "mx-stocks-screener",
+        "china-stock-analysis",
+        "tushare"
+      ],
+      "count": 4
+    },
+    "communication": {
+      "priority": 60,
+      "skills": [
+        "imap-smtp-email",
+        "discord",
+        "linkedin-api"
+      ],
+      "count": 3
+    },
+    "content": {
+      "priority": 55,
+      "skills": [
+        "article-writer",
+        "copywriter",
+        "personas",
+        "best-minds",
+        "story-cog",
+        "ai-picture-book"
+      ],
+      "count": 6
+    },
+    "productivity": {
+      "priority": 50,
+      "skills": [
+        "productivity",
+        "proactivity",
+        "planning-with-files",
+        "taskr",
+        "getnote"
+      ],
+      "count": 5
+    },
+    "marketing": {
+      "priority": 45,
+      "skills": [
+        "marketing-strategy-pmm",
+        "technical-seo-checker",
+        "klaviyo"
+      ],
+      "count": 3
+    },
+    "business": {
+      "priority": 40,
+      "skills": [
+        "ceo-advisor",
+        "senior-architect",
+        "senior-data-scientist",
+        "senior-security",
+        "risk-management-specialist",
+        "tdd-guide"
+      ],
+      "count": 6
+    },
+    "automation": {
+      "priority": 35,
+      "skills": [
+        "playwright",
+        "cron",
+        "agent-browser-clawdbot",
+        "agent-chronicle",
+        "scrapling-official",
+        "topic-monitor"
+      ],
+      "count": 6
+    },
+    "utility": {
+      "priority": 30,
+      "skills": [
+        "weather",
+        "post-job",
+        "good-txt-to-hwreader",
+        "himalaya",
+        "su-lan-paper-daily-skill",
+        "google-weather",
+        "google-maps",
+        "ocr-local",
+        "deepread-ocr",
+        "file-manager",
+        "tech-news-digest",
+        "screenshot",
+        "beauty-generation-api",
+        "sheet-cog",
+        "slides-cog",
+        "ui-design-system"
+      ],
+      "count": 16
+    },
+    "other": {
+      "priority": 25,
+      "skills": [
+        "calcom-cal.com-web-design-guidelines-1.0.2",
+        "openai-whisper-api"
+      ],
+      "count": 2
+    }
+  },
+  "chains": {
+    "document-convert": {
+      "entry": "xiaoyi-doc-convert",
+      "skills": ["xiaoyi-file-upload", "docx", "pdf", "pptx", "markitdown"],
+      "priority": 85
+    },
+    "image-pipeline": {
+      "entry": "xiaoyi-image-understanding",
+      "skills": ["xiaoyi-image-search", "seedream-image_gen", "image-cog", "image-gen"],
+      "priority": 75
+    },
+    "search-pipeline": {
+      "entry": "deep-search-and-insight-synthesize",
+      "skills": ["xiaoyi-web-search", "web-search-exa", "web-search-plus", "prismfy-search"],
+      "priority": 80
+    },
+    "api-integration": {
+      "entry": "api-gateway",
+      "skills": ["mcporter"],
+      "priority": 90
+    },
+    "devops": {
+      "entry": "git",
+      "skills": ["docker", "webapp-testing", "code-analysis-skills"],
+      "priority": 70
+    },
+    "self-evolution": {
+      "entry": "self-improving-agent",
+      "skills": ["auto-skill-upgrade", "skill-creator", "find-skills", "ontology", "moltguard"],
+      "priority": 95
+    },
+    "finance-analysis": {
+      "entry": "mx-finance-data",
+      "skills": ["mx-stocks-screener", "china-stock-analysis", "tushare"],
+      "priority": 65
+    },
+    "content-creation": {
+      "entry": "article-writer",
+      "skills": ["copywriter", "story-cog", "ai-picture-book"],
+      "priority": 55
+    }
+  },
+  "newSkills": [
+    {"name": "free-ride", "category": "integration"},
+    {"name": "web-search-exa", "category": "search"},
+    {"name": "web-search-plus", "category": "search"},
+    {"name": "productivity", "category": "productivity"},
+    {"name": "proactivity", "category": "productivity"},
+    {"name": "planning-with-files", "category": "productivity"},
+    {"name": "market-research", "category": "search"},
+    {"name": "image", "category": "multimedia"},
+    {"name": "screenshot", "category": "utility"},
+    {"name": "openai-whisper-api", "category": "other"},
+    {"name": "discord", "category": "communication"},
+    {"name": "clawdhub", "category": "integration"},
+    {"name": "skill-finder", "category": "integration"},
+    {"name": "command-center", "category": "integration"},
+    {"name": "mx-finance-data", "category": "finance"},
+    {"name": "mx-stocks-screener", "category": "finance"},
+    {"name": "china-stock-analysis", "category": "finance"},
+    {"name": "tushare", "category": "finance"},
+    {"name": "linkedin-api", "category": "communication"},
+    {"name": "getnote", "category": "productivity"},
+    {"name": "image-cog", "category": "multimedia"},
+    {"name": "video-cog", "category": "multimedia"},
+    {"name": "audio-cog", "category": "multimedia"},
+    {"name": "story-cog", "category": "content"},
+    {"name": "research-cog", "category": "search"},
+    {"name": "slides-cog", "category": "utility"},
+    {"name": "sheet-cog", "category": "utility"},
+    {"name": "docs-cog", "category": "document"},
+    {"name": "cn-web-search", "category": "search"},
+    {"name": "zhipu-web-search", "category": "search"},
+    {"name": "tavily-search-skill", "category": "search"},
+    {"name": "x-search", "category": "search"},
+    {"name": "google-weather", "category": "utility"},
+    {"name": "google-maps", "category": "utility"},
+    {"name": "ocr-local", "category": "utility"},
+    {"name": "paddleocr-doc-parsing", "category": "document"},
+    {"name": "deepread-ocr", "category": "utility"},
+    {"name": "scrapling-official", "category": "automation"},
+    {"name": "web-scraping", "category": "search"},
+    {"name": "web-scraper", "category": "search"},
+    {"name": "agent-browser-clawdbot", "category": "automation"},
+    {"name": "web-browsing", "category": "search"},
+    {"name": "video-transcript-downloader", "category": "multimedia"},
+    {"name": "video-agent", "category": "multimedia"},
+    {"name": "ai-picture-book", "category": "content"},
+    {"name": "code-analysis-skills", "category": "development"},
+    {"name": "seo-content-writer", "category": "marketing"},
+    {"name": "competitor-analysis", "category": "search"},
+    {"name": "keyword-research", "category": "search"},
+    {"name": "technical-seo-checker", "category": "marketing"},
+    {"name": "marketing-strategy-pmm", "category": "marketing"},
+    {"name": "content-creator", "category": "content"},
+    {"name": "senior-architect", "category": "business"},
+    {"name": "senior-security", "category": "business"},
+    {"name": "senior-data-scientist", "category": "business"},
+    {"name": "ceo-advisor", "category": "business"},
+    {"name": "risk-management-specialist", "category": "business"},
+    {"name": "tdd-guide", "category": "business"},
+    {"name": "quality-documentation-manager", "category": "document"},
+    {"name": "cron", "category": "automation"},
+    {"name": "taskr", "category": "productivity"},
+    {"name": "topic-monitor", "category": "automation"},
+    {"name": "agent-chronicle", "category": "automation"},
+    {"name": "klaviyo", "category": "marketing"},
+    {"name": "file-manager", "category": "utility"},
+    {"name": "tech-news-digest", "category": "utility"},
+    {"name": "ui-design-system", "category": "utility"},
+    {"name": "image-gen", "category": "multimedia"},
+    {"name": "beauty-generation-api", "category": "utility"}
+  ]
+}

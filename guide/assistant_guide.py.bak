@@ -1,0 +1,874 @@
+#!/usr/bin/env python3
+"""
+小艺 Claw 终极星空鸽子王 - 完整引导模块
+V2.8.1 - 2026-04-11
+
+功能：
+1. 系统能力全景展示
+2. 所有技能介绍
+3. 操作方式和快速代码
+4. 常用命令速查
+5. 拓展思路和功能推荐
+6. 每次对话自动引导
+"""
+
+import json
+from typing import Dict, List, Any, Optional
+from pathlib import Path
+from datetime import datetime
+from dataclasses import dataclass, field
+from enum import Enum
+
+from infrastructure.path_resolver import get_project_root
+
+class GuideSection(Enum):
+    WELCOME = "welcome"               # 欢迎信息
+    CAPABILITIES = "capabilities"     # 能力介绍
+    SKILLS = "skills"                 # 技能介绍
+    WORKFLOWS = "workflows"           # 工作流
+    COMMANDS = "commands"             # 常用命令
+    QUICK_CODE = "quick_code"         # 快速代码
+    TIPS = "tips"                     # 拓展思路
+    RECOMMENDATIONS = "recommendations"  # 功能推荐
+
+@dataclass
+class SkillInfo:
+    """技能信息"""
+    name: str
+    display_name: str
+    category: str
+    description: str
+    usage: str
+    example: str
+    quick_code: str = ""
+
+class CompleteGuide:
+    """完整引导模块"""
+    
+    def __init__(self):
+        self.project_root = get_project_root()
+        self.guide_path = self.project_root / 'guide'
+        
+        # 技能清单
+        self.skills: Dict[str, SkillInfo] = {}
+        
+        # 工作流清单
+        self.workflows: Dict[str, Dict] = {}
+        
+        # 常用命令
+        self.commands: List[Dict] = []
+        
+        # 快速代码模板
+        self.quick_codes: List[Dict] = []
+        
+        # 拓展思路
+        self.tips: List[str] = []
+        
+        # 功能推荐
+        self.recommendations: List[Dict] = []
+        
+        self._init_all()
+    
+    def _init_all(self):
+        """初始化所有内容"""
+        self._init_skills()
+        self._init_workflows()
+        self._init_commands()
+        self._init_quick_codes()
+        self._init_tips()
+        self._init_recommendations()
+    
+    def _init_skills(self):
+        """初始化所有技能"""
+        # 文档处理类
+        self.skills["docx"] = SkillInfo(
+            name="docx",
+            display_name="Word文档生成",
+            category="文档处理",
+            description="生成和编辑Word文档，支持表格、图片、样式",
+            usage="说'生成Word文档'或'创建xxx.docx'",
+            example="帮我生成一份销售报告Word文档",
+            quick_code="from docx import Document\ndoc = Document()\ndoc.add_heading('标题', 0)\ndoc.save('report.docx')"
+        )
+        
+        self.skills["pdf"] = SkillInfo(
+            name="pdf",
+            display_name="PDF文档处理",
+            category="文档处理",
+            description="生成和转换PDF文档",
+            usage="说'生成PDF'或'转换为PDF'",
+            example="把这份报告转换为PDF格式",
+            quick_code="from fpdf import FPDF\npdf = FPDF()\npdf.add_page()\npdf.output('report.pdf')"
+        )
+        
+        self.skills["pptx"] = SkillInfo(
+            name="pptx",
+            display_name="PPT演示文稿",
+            category="文档处理",
+            description="生成和编辑PowerPoint演示文稿",
+            usage="说'生成PPT'或'创建演示文稿'",
+            example="帮我制作一份产品介绍PPT",
+            quick_code="from pptx import Presentation\nprs = Presentation()\nslide = prs.slides.add_slide(prs.slide_layouts[0])\nprs.save('demo.pptx')"
+        )
+        
+        self.skills["markitdown"] = SkillInfo(
+            name="markitdown",
+            display_name="Markdown转换",
+            category="文档处理",
+            description="各种格式与Markdown互转",
+            usage="说'转换为Markdown'或'转成MD'",
+            example="把这个Word文档转成Markdown格式"
+        )
+        
+        # 数据分析类
+        self.skills["data-analysis"] = SkillInfo(
+            name="data-analysis",
+            display_name="数据分析",
+            category="数据分析",
+            description="通用数据分析，支持统计、可视化、洞察提取",
+            usage="说'分析数据'或'做数据分析'",
+            example="分析这份销售数据，找出趋势",
+            quick_code="import pandas as pd\ndf = pd.read_csv('data.csv')\nprint(df.describe())"
+        )
+        
+        self.skills["excel-analysis"] = SkillInfo(
+            name="excel-analysis",
+            display_name="Excel分析",
+            category="数据分析",
+            description="Excel文件读取、分析、处理",
+            usage="说'分析Excel'或'处理表格'",
+            example="分析这个Excel文件里的数据",
+            quick_code="import pandas as pd\ndf = pd.read_excel('data.xlsx')\ndf.groupby('列名').sum()"
+        )
+        
+        self.skills["sqlite"] = SkillInfo(
+            name="sqlite",
+            display_name="SQLite数据库",
+            category="数据分析",
+            description="SQLite数据库操作和查询",
+            usage="说'查询数据库'或'SQL查询'",
+            example="查询这个数据库里的用户数据",
+            quick_code="import sqlite3\nconn = sqlite3.connect('db.sqlite')\ncursor = conn.execute('SELECT * FROM table')"
+        )
+        
+        self.skills["mysql"] = SkillInfo(
+            name="mysql",
+            display_name="MySQL数据库",
+            category="数据分析",
+            description="MySQL数据库连接和操作",
+            usage="说'连接MySQL'或'查询MySQL'",
+            example="从MySQL数据库导出数据"
+        )
+        
+        # 网络服务类
+        self.skills["xiaoyi-web-search"] = SkillInfo(
+            name="xiaoyi-web-search",
+            display_name="网页搜索",
+            category="网络服务",
+            description="搜索互联网信息，获取实时数据",
+            usage="说'搜索xxx'或'查一下xxx'",
+            example="搜索一下2024年电商行业趋势",
+            quick_code="# 自动调用搜索API\n# 返回搜索结果"
+        )
+        
+        self.skills["web-browsing"] = SkillInfo(
+            name="web-browsing",
+            display_name="浏览器自动化",
+            category="网络服务",
+            description="自动化浏览网页，提取信息",
+            usage="说'打开网页'或'浏览xxx'",
+            example="打开淘宝搜索蓝牙耳机"
+        )
+        
+        self.skills["web-scraping"] = SkillInfo(
+            name="web-scraping",
+            display_name="网页抓取",
+            category="网络服务",
+            description="抓取网页内容，提取数据",
+            usage="说'抓取网页'或'提取数据'",
+            example="抓取这个网站的产品信息"
+        )
+        
+        # 图片处理类
+        self.skills["image-cog"] = SkillInfo(
+            name="image-cog",
+            display_name="图片理解",
+            category="图片处理",
+            description="理解图片内容，识别文字、物体",
+            usage="发送图片后说'识别图片'",
+            example="识别这张图片里的文字",
+            quick_code="from PIL import Image\nimg = Image.open('photo.jpg')\n# OCR识别"
+        )
+        
+        self.skills["xiaoyi-image-understanding"] = SkillInfo(
+            name="xiaoyi-image-understanding",
+            display_name="图片识别",
+            category="图片处理",
+            description="深度图片识别和分析",
+            usage="发送图片后说'分析图片'",
+            example="分析这张图片的内容"
+        )
+        
+        self.skills["seedream-image-gen"] = SkillInfo(
+            name="seedream-image-gen",
+            display_name="图片生成",
+            category="图片处理",
+            description="AI生成图片",
+            usage="说'生成图片'或'画一张xxx'",
+            example="生成一张咖啡店的宣传图"
+        )
+        
+        # 自动化类
+        self.skills["cron"] = SkillInfo(
+            name="cron",
+            display_name="定时任务",
+            category="自动化",
+            description="创建和管理定时任务",
+            usage="说'每天xxx时间提醒我'",
+            example="每天早上9点提醒我查看数据",
+            quick_code="openclaw cron add '0 9 * * *' --message '提醒内容' --channel xiaoyi-channel"
+        )
+        
+        self.skills["xiaoyi-gui-agent"] = SkillInfo(
+            name="xiaoyi-gui-agent",
+            display_name="手机自动化",
+            category="自动化",
+            description="自动化操作手机APP",
+            usage="说'在手机上xxx'或'打开APP'",
+            example="在淘宝上搜索蓝牙耳机"
+        )
+        
+        self.skills["playwright"] = SkillInfo(
+            name="playwright",
+            display_name="浏览器自动化",
+            category="自动化",
+            description="自动化浏览器操作",
+            usage="说'自动浏览'或'自动化网页'",
+            example="自动登录网站并截图"
+        )
+        
+        # 代码开发类
+        self.skills["git"] = SkillInfo(
+            name="git",
+            display_name="Git版本控制",
+            category="代码开发",
+            description="Git操作和版本管理",
+            usage="说'git xxx'或'提交代码'",
+            example="帮我提交这些修改到git",
+            quick_code="git add .\ngit commit -m 'message'\ngit push"
+        )
+        
+        self.skills["code-analysis"] = SkillInfo(
+            name="code-analysis",
+            display_name="代码分析",
+            category="代码开发",
+            description="代码质量分析和审计",
+            usage="说'分析代码'或'审计代码'",
+            example="分析这个项目的代码质量"
+        )
+        
+        self.skills["tdd-guide"] = SkillInfo(
+            name="tdd-guide",
+            display_name="TDD开发指导",
+            category="代码开发",
+            description="测试驱动开发指导",
+            usage="说'TDD开发'或'测试驱动'",
+            example="用TDD方式开发一个用户登录功能"
+        )
+        
+        # 商业分析类
+        self.skills["market-research"] = SkillInfo(
+            name="market-research",
+            display_name="市场研究",
+            category="商业分析",
+            description="市场调研和竞争分析",
+            usage="说'市场分析'或'竞争分析'",
+            example="分析咖啡市场的竞争格局"
+        )
+        
+        self.skills["stock-price-query"] = SkillInfo(
+            name="stock-price-query",
+            display_name="股票查询",
+            category="商业分析",
+            description="股票价格查询和分析",
+            usage="说'查询股票'或'股价xxx'",
+            example="查询贵州茅台的股价"
+        )
+        
+        # 内容创作类
+        self.skills["article-writer"] = SkillInfo(
+            name="article-writer",
+            display_name="文章写作",
+            category="内容创作",
+            description="自动生成文章内容",
+            usage="说'写一篇文章'或'生成文章'",
+            example="写一篇关于AI发展的文章"
+        )
+        
+        self.skills["copywriter"] = SkillInfo(
+            name="copywriter",
+            display_name="文案创作",
+            category="内容创作",
+            description="营销文案和广告语创作",
+            usage="说'写文案'或'创作广告语'",
+            example="为这个产品写一段营销文案"
+        )
+        
+        self.skills["poetry"] = SkillInfo(
+            name="poetry",
+            display_name="诗歌创作",
+            category="内容创作",
+            description="创作诗歌和文学作品",
+            usage="说'写诗'或'创作诗歌'",
+            example="写一首关于春天的诗"
+        )
+        
+        # 工具类
+        self.skills["weather"] = SkillInfo(
+            name="weather",
+            display_name="天气查询",
+            category="工具",
+            description="查询天气信息",
+            usage="说'天气'或'查询天气'",
+            example="今天北京天气怎么样"
+        )
+        
+        self.skills["spotify-player"] = SkillInfo(
+            name="spotify-player",
+            display_name="Spotify播放",
+            category="工具",
+            description="控制Spotify音乐播放",
+            usage="说'播放音乐'或'Spotify'",
+            example="播放周杰伦的歌"
+        )
+        
+        # 记忆与上下文
+        self.skills["memory"] = SkillInfo(
+            name="memory",
+            display_name="记忆管理",
+            category="核心功能",
+            description="记住和回忆信息",
+            usage="说'记住xxx'或'我之前说过什么'",
+            example="记住我的店铺名称是星空小店",
+            quick_code="# 自动记忆\n# 跨会话保持"
+        )
+    
+    def _init_workflows(self):
+        """初始化工作流"""
+        self.workflows = {
+            "电商选品分析": {
+                "description": "分析电商平台产品趋势，生成选品建议",
+                "steps": [
+                    "1. 确定分析的产品类目和平台",
+                    "2. 搜索相关产品信息",
+                    "3. 分析价格、销量、评价趋势",
+                    "4. 识别热销产品和潜力品类",
+                    "5. 生成选品建议报告"
+                ],
+                "skills": ["xiaoyi-web-search", "data-analysis", "docx"],
+                "example": "帮我分析淘宝上蓝牙耳机的选品趋势",
+                "output": "选品分析报告（Word/PDF）"
+            },
+            "工厂筛选比价": {
+                "description": "筛选供应商，对比价格和质量",
+                "steps": [
+                    "1. 确定产品需求和规格",
+                    "2. 搜索潜在供应商",
+                    "3. 收集报价和资质信息",
+                    "4. 对比价格、质量、交期",
+                    "5. 生成供应商推荐报告"
+                ],
+                "skills": ["xiaoyi-web-search", "excel-analysis", "docx"],
+                "example": "帮我找几家做手机壳的工厂，对比价格",
+                "output": "供应商对比报告（Excel/Word）"
+            },
+            "主播/团长筛选": {
+                "description": "筛选合作主播或团长",
+                "steps": [
+                    "1. 确定产品类型和目标人群",
+                    "2. 搜索相关主播/团长",
+                    "3. 分析粉丝画像和带货数据",
+                    "4. 评估合作价值和费用",
+                    "5. 生成合作推荐列表"
+                ],
+                "skills": ["xiaoyi-web-search", "data-analysis"],
+                "example": "帮我找适合推广美妆产品的主播",
+                "output": "合作推荐列表"
+            },
+            "店铺启动": {
+                "description": "新店铺启动全流程指导",
+                "steps": [
+                    "1. 确定店铺类型和定位",
+                    "2. 规划产品结构和定价",
+                    "3. 制定运营计划和推广策略",
+                    "4. 准备开店资料和资质",
+                    "5. 生成启动清单和时间表"
+                ],
+                "skills": ["docx", "market-research"],
+                "example": "我要开一家淘宝店，帮我规划启动流程",
+                "output": "店铺启动计划（Word）"
+            },
+            "代码审计": {
+                "description": "检查代码架构和质量",
+                "steps": [
+                    "1. 扫描项目代码结构",
+                    "2. 检查架构规范和设计模式",
+                    "3. 分析代码质量和复杂度",
+                    "4. 识别潜在问题和风险",
+                    "5. 生成审计报告和改进建议"
+                ],
+                "skills": ["code-analysis", "git"],
+                "example": "帮我审计这个项目的代码质量",
+                "output": "代码审计报告"
+            },
+            "市场分析报告": {
+                "description": "深度市场调研分析",
+                "steps": [
+                    "1. 确定分析的市场和范围",
+                    "2. 收集市场规模和增长数据",
+                    "3. 分析竞争格局和主要玩家",
+                    "4. 识别市场趋势和机会",
+                    "5. 生成市场分析报告"
+                ],
+                "skills": ["xiaoyi-web-search", "market-research", "docx"],
+                "example": "分析一下中国咖啡市场",
+                "output": "市场分析报告（Word/PDF）"
+            }
+        }
+    
+    def _init_commands(self):
+        """初始化常用命令"""
+        self.commands = [
+            # 基础命令
+            {"category": "基础", "command": "帮助", "description": "查看能力列表"},
+            {"category": "基础", "command": "你能做什么", "description": "查看功能介绍"},
+            {"category": "基础", "command": "工作流", "description": "查看工作流列表"},
+            {"category": "基础", "command": "技能", "description": "查看技能分类"},
+            {"category": "基础", "command": "新手引导", "description": "查看上手教程"},
+            
+            # 搜索类
+            {"category": "搜索", "command": "搜索 xxx", "description": "网页搜索"},
+            {"category": "搜索", "command": "查一下 xxx", "description": "快速查询"},
+            {"category": "搜索", "command": "市场分析 xxx", "description": "市场调研"},
+            
+            # 文档类
+            {"category": "文档", "command": "生成 Word 报告", "description": "创建Word文档"},
+            {"category": "文档", "command": "生成 PDF", "description": "创建PDF文档"},
+            {"category": "文档", "command": "制作 PPT", "description": "创建演示文稿"},
+            {"category": "文档", "command": "转换为 xxx", "description": "格式转换"},
+            
+            # 数据类
+            {"category": "数据", "command": "分析数据", "description": "数据分析"},
+            {"category": "数据", "command": "做个图表", "description": "数据可视化"},
+            {"category": "数据", "command": "导出 Excel", "description": "导出表格"},
+            
+            # 自动化类
+            {"category": "自动化", "command": "每天 xxx 提醒我", "description": "设置定时任务"},
+            {"category": "自动化", "command": "每周 xxx", "description": "周期任务"},
+            {"category": "自动化", "command": "自动执行 xxx", "description": "自动化任务"},
+            
+            # 记忆类
+            {"category": "记忆", "command": "记住 xxx", "description": "保存信息"},
+            {"category": "记忆", "command": "我之前说过什么", "description": "回忆信息"},
+            {"category": "记忆", "command": "查看记忆", "description": "查看已保存信息"},
+            
+            # 协作类
+            {"category": "协作", "command": "分配任务给 xxx", "description": "任务委派"},
+            {"category": "协作", "command": "发起审批", "description": "审批流程"},
+            {"category": "协作", "command": "查看进度", "description": "项目状态"},
+            
+            # 决策类
+            {"category": "决策", "command": "对比方案 A 和 B", "description": "方案对比"},
+            {"category": "决策", "command": "预估风险", "description": "风险评估"},
+            {"category": "决策", "command": "模拟预演", "description": "决策模拟"},
+        ]
+    
+    def _init_quick_codes(self):
+        """初始化快速代码模板"""
+        self.quick_codes = [
+            {
+                "name": "创建Word文档",
+                "code": """from docx import Document
+
+doc = Document()
+doc.add_heading('报告标题', 0)
+doc.add_paragraph('这是正文内容')
+doc.add_table(rows=3, cols=3)
+doc.save('report.docx')"""
+            },
+            {
+                "name": "数据分析",
+                "code": """import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('data.csv')
+print(df.describe())
+df.plot()
+plt.savefig('chart.png')"""
+            },
+            {
+                "name": "网页搜索",
+                "code": """# 自动调用搜索API
+# 返回搜索结果列表
+results = search("关键词")
+for r in results:
+    print(r['title'], r['url'])"""
+            },
+            {
+                "name": "定时任务",
+                "code": """# 创建定时任务
+openclaw cron add "0 9 * * *" \\
+    --message "早上提醒" \\
+    --channel xiaoyi-channel"""
+            },
+            {
+                "name": "图片识别",
+                "code": """from PIL import Image
+import pytesseract
+
+img = Image.open('photo.jpg')
+text = pytesseract.image_to_string(img, lang='chi_sim')
+print(text)"""
+            },
+            {
+                "name": "Excel处理",
+                "code": """import pandas as pd
+
+# 读取Excel
+df = pd.read_excel('data.xlsx')
+
+# 数据处理
+result = df.groupby('列名').sum()
+
+# 导出
+result.to_excel('output.xlsx')"""
+            },
+            {
+                "name": "API调用",
+                "code": """import requests
+
+response = requests.get('https://api.example.com/data')
+data = response.json()
+print(data)"""
+            },
+            {
+                "name": "文件操作",
+                "code": """from pathlib import Path
+
+# 读取文件
+content = Path('file.txt').read_text()
+
+# 写入文件
+Path('output.txt').write_text('内容')"""
+            }
+        ]
+    
+    def _init_tips(self):
+        """初始化拓展思路"""
+        self.tips = [
+            "💡 **多步骤任务**: 我会自动拆解复杂任务，你只需描述最终目标",
+            "💡 **自然语言**: 直接用日常语言交流，无需记忆特定命令",
+            "💡 **记忆功能**: 说'记住xxx'保存重要信息，下次对话我会记得",
+            "💡 **文件处理**: 支持读取和生成多种格式（docx, pdf, xlsx, csv等）",
+            "💡 **定时任务**: 可以设置每天、每周、每月的周期性任务",
+            "💡 **工作流**: 预设工作流可快速完成复杂任务，如电商选品分析",
+            "💡 **技能组合**: 多个技能可以组合使用，如搜索+分析+生成报告",
+            "💡 **图片处理**: 发送图片后可以识别、分析、编辑",
+            "💡 **数据分析**: 支持Excel、CSV、数据库等多种数据源",
+            "💡 **协作功能**: 可以分配任务、发起审批、跟踪进度",
+            "💡 **决策支持**: 可以对比方案、预估风险、模拟预演",
+            "💡 **自动化**: 在安全边界内可以自动执行任务",
+            "💡 **服务包**: 不同服务包有不同能力，可以查看和升级",
+            "💡 **成本核算**: 可以查看资源使用和成本消耗",
+            "💡 **多端支持**: 支持Web、API、命令行、文件等多种方式调用",
+        ]
+    
+    def _init_recommendations(self):
+        """初始化功能推荐"""
+        self.recommendations = [
+            {
+                "scenario": "电商运营",
+                "features": ["电商选品分析", "主播/团长筛选", "市场分析报告"],
+                "skills": ["xiaoyi-web-search", "data-analysis", "docx"]
+            },
+            {
+                "scenario": "采购寻源",
+                "features": ["工厂筛选比价", "供应商评估", "成本分析"],
+                "skills": ["xiaoyi-web-search", "excel-analysis", "docx"]
+            },
+            {
+                "scenario": "内容创作",
+                "features": ["文章写作", "文案创作", "报告生成"],
+                "skills": ["article-writer", "copywriter", "docx"]
+            },
+            {
+                "scenario": "数据分析",
+                "features": ["数据清洗", "统计分析", "可视化图表"],
+                "skills": ["data-analysis", "excel-analysis", "sqlite"]
+            },
+            {
+                "scenario": "项目管理",
+                "features": ["任务分配", "进度跟踪", "审批流程"],
+                "skills": ["cron", "docx"]
+            },
+            {
+                "scenario": "代码开发",
+                "features": ["代码审计", "Git操作", "TDD开发"],
+                "skills": ["code-analysis", "git", "tdd-guide"]
+            },
+            {
+                "scenario": "自动化办公",
+                "features": ["定时任务", "自动执行", "批量处理"],
+                "skills": ["cron", "playwright", "xiaoyi-gui-agent"]
+            },
+            {
+                "scenario": "市场研究",
+                "features": ["市场分析", "竞争调研", "趋势预测"],
+                "skills": ["market-research", "xiaoyi-web-search", "data-analysis"]
+            }
+        ]
+    
+    # === 输出方法 ===
+    
+    def get_full_guide(self) -> str:
+        """获取完整引导内容"""
+        sections = [
+            self._get_welcome(),
+            self._get_capabilities(),
+            self._get_skills_overview(),
+            self._get_workflows(),
+            self._get_commands(),
+            self._get_quick_codes(),
+            self._get_tips(),
+            self._get_recommendations()
+        ]
+        return "\n\n".join(sections)
+    
+    def _get_welcome(self) -> str:
+        """欢迎信息"""
+        return """👋 欢迎使用 **小艺 Claw 终极星空鸽子王 V2.8.1**！
+
+我是你的智能助手，可以帮助你完成各种任务。
+
+---
+
+## 🎯 快速开始
+
+直接用自然语言描述你的需求：
+- "帮我分析电商市场趋势"
+- "生成一份销售报告"
+- "每天早上9点提醒我"
+
+---
+
+## 💡 试试这些
+
+1. **电商选品分析** - 分析产品趋势，生成选品建议
+2. **工厂筛选比价** - 对比供应商，找到最优选择
+3. **市场分析报告** - 深度调研，生成专业报告
+4. **定时任务** - 设置周期性提醒和自动化
+5. **数据分析** - 处理数据，生成图表和洞察"""
+    
+    def _get_capabilities(self) -> str:
+        """能力介绍"""
+        return """## 📊 系统能力
+
+| 类别 | 能力 | 说明 |
+|------|------|------|
+| 🔍 **搜索分析** | 网页搜索、市场分析 | 获取实时信息，深度分析 |
+| 📊 **数据处理** | 数据分析、报告生成 | 处理数据，生成洞察 |
+| 📝 **文档生成** | Word/PDF/PPT | 创建专业文档 |
+| 🖼️ **图片处理** | 识别、编辑、生成 | 图片理解和创作 |
+| ⏰ **自动化** | 定时任务、自动执行 | 周期性任务和自动化 |
+| 🤝 **协作** | 任务分配、审批流程 | 团队协作管理 |
+| 🧠 **记忆** | 信息保存、上下文 | 跨会话记忆 |
+| 📈 **决策** | 方案对比、风险预估 | 辅助决策支持 |"""
+    
+    def _get_skills_overview(self) -> str:
+        """技能概览"""
+        # 按类别分组
+        categories = {}
+        for skill in self.skills.values():
+            if skill.category not in categories:
+                categories[skill.category] = []
+            categories[skill.category].append(skill)
+        
+        lines = ["## 🛠️ 技能分类", ""]
+        
+        for category, skills in categories.items():
+            lines.append(f"### {category}")
+            for skill in skills:
+                lines.append(f"- **{skill.display_name}**: {skill.description}")
+            lines.append("")
+        
+        return "\n".join(lines)
+    
+    def _get_workflows(self) -> str:
+        """工作流介绍"""
+        lines = ["## 🔄 工作流", ""]
+        
+        for name, wf in self.workflows.items():
+            lines.append(f"### {name}")
+            lines.append(f"- **说明**: {wf['description']}")
+            lines.append(f"- **示例**: `{wf['example']}`")
+            lines.append(f"- **输出**: {wf['output']}")
+            lines.append("")
+        
+        return "\n".join(lines)
+    
+    def _get_commands(self) -> str:
+        """常用命令"""
+        lines = ["## 📋 常用命令", ""]
+        
+        # 按类别分组
+        categories = {}
+        for cmd in self.commands:
+            cat = cmd['category']
+            if cat not in categories:
+                categories[cat] = []
+            categories[cat].append(cmd)
+        
+        for cat, cmds in categories.items():
+            lines.append(f"### {cat}")
+            for cmd in cmds:
+                lines.append(f"- `{cmd['command']}`: {cmd['description']}")
+            lines.append("")
+        
+        return "\n".join(lines)
+    
+    def _get_quick_codes(self) -> str:
+        """快速代码"""
+        lines = ["## 💻 快速代码模板", ""]
+        
+        for code in self.quick_codes:
+            lines.append(f"### {code['name']}")
+            lines.append(f"```python\n{code['code']}\n```")
+            lines.append("")
+        
+        return "\n".join(lines)
+    
+    def _get_tips(self) -> str:
+        """拓展思路"""
+        lines = ["## 💡 使用技巧", ""]
+        for tip in self.tips:
+            lines.append(f"- {tip}")
+        return "\n".join(lines)
+    
+    def _get_recommendations(self) -> str:
+        """功能推荐"""
+        lines = ["## 🎯 场景推荐", ""]
+        
+        for rec in self.recommendations:
+            lines.append(f"### {rec['scenario']}")
+            lines.append(f"- **推荐功能**: {', '.join(rec['features'])}")
+            lines.append(f"- **相关技能**: {', '.join(rec['skills'])}")
+            lines.append("")
+        
+        return "\n".join(lines)
+    
+    # === 快速查询方法 ===
+    
+    def get_skill_detail(self, skill_name: str) -> Optional[str]:
+        """获取技能详情"""
+        skill = self.skills.get(skill_name)
+        if not skill:
+            return None
+        
+        return f"""## {skill.display_name}
+
+- **类别**: {skill.category}
+- **说明**: {skill.description}
+- **用法**: {skill.usage}
+- **示例**: `{skill.example}`
+{f'- **快速代码**:\\n```python\\n{skill.quick_code}\\n```' if skill.quick_code else ''}"""
+    
+    def get_workflow_detail(self, workflow_name: str) -> Optional[str]:
+        """获取工作流详情"""
+        wf = self.workflows.get(workflow_name)
+        if not wf:
+            return None
+        
+        lines = [
+            f"## {workflow_name}",
+            "",
+            f"**说明**: {wf['description']}",
+            "",
+            "### 执行步骤",
+            ""
+        ]
+        for step in wf['steps']:
+            lines.append(f"- {step}")
+        
+        lines.extend([
+            "",
+            "### 使用示例",
+            f"`{wf['example']}`",
+            "",
+            f"**输出**: {wf['output']}"
+        ])
+        
+        return "\n".join(lines)
+    
+    def search_skills(self, keyword: str) -> List[SkillInfo]:
+        """搜索技能"""
+        results = []
+        keyword_lower = keyword.lower()
+        
+        for skill in self.skills.values():
+            if (keyword_lower in skill.name.lower() or
+                keyword_lower in skill.display_name.lower() or
+                keyword_lower in skill.description.lower() or
+                keyword_lower in skill.category.lower()):
+                results.append(skill)
+        
+        return results
+    
+    def get_quick_reference(self) -> str:
+        """快速参考卡"""
+        return """## 📋 快速参考
+
+### 常用命令
+| 命令 | 说明 |
+|------|------|
+| `帮助` | 查看能力列表 |
+| `搜索 xxx` | 网页搜索 |
+| `生成 xxx 报告` | 创建文档 |
+| `分析数据` | 数据分析 |
+| `每天 xxx 提醒我` | 定时任务 |
+| `记住 xxx` | 保存记忆 |
+
+### 工作流
+| 工作流 | 用途 |
+|--------|------|
+| 电商选品分析 | 分析产品趋势 |
+| 工厂筛选比价 | 供应商对比 |
+| 主播/团长筛选 | 合作伙伴筛选 |
+| 店铺启动 | 新店开业指导 |
+| 代码审计 | 代码质量检查 |
+| 市场分析报告 | 市场调研 |
+
+### 技能分类
+| 类别 | 技能示例 |
+|------|----------|
+| 文档处理 | docx, pdf, pptx |
+| 数据分析 | data-analysis, excel-analysis |
+| 网络服务 | xiaoyi-web-search, web-browsing |
+| 图片处理 | image-cog, xiaoyi-image-understanding |
+| 自动化 | cron, xiaoyi-gui-agent |
+
+---
+
+💡 **提示**: 直接用自然语言描述需求，我会自动匹配合适的能力！"""
+
+# 全局实例
+_complete_guide = None
+
+
+# 全局实例
+_complete_guide = None
+
+def get_guide() -> CompleteGuide:
+    global _complete_guide
+    if _complete_guide is None:
+        _complete_guide = CompleteGuide()
+    return _complete_guide

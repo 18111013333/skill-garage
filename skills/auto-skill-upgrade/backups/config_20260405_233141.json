@@ -1,0 +1,28 @@
+{
+  "version": "1.0.0",
+  "lastMerge": "2026-04-05T23:23:59+08:00",
+  "categories": {
+    "core": [],
+    "xiaoyi": [],
+    "document": [],
+    "multimedia": [],
+    "search": [],
+    "development": [],
+    "other": []
+  },
+  "chains": {
+    "document-convert": [],
+    "image-pipeline": [],
+    "search-pipeline": []
+  },
+  "priority": {
+    "xiaoyi": 100,
+    "core": 90,
+    "document": 80,
+    "multimedia": 70,
+    "search": 60,
+    "development": 50,
+    "other": 40
+  },
+  "integrations": []
+}

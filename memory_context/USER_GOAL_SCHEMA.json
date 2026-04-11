@@ -1,0 +1,225 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-04-06T11:12:00+08:00",
+  "description": "用户目标模型结构定义",
+  "schema": {
+    "goal_id": {
+      "type": "string",
+      "required": true,
+      "description": "目标唯一标识"
+    },
+    "goal_type": {
+      "type": "string",
+      "required": true,
+      "enum": ["information", "action", "creation", "decision", "planning", "exploration"],
+      "description": "目标类型"
+    },
+    "primary_goal": {
+      "type": "string",
+      "required": true,
+      "description": "主要目标描述"
+    },
+    "sub_goals": {
+      "type": "array",
+      "required": false,
+      "description": "子目标列表",
+      "items": {
+        "type": "object",
+        "properties": {
+          "goal": { "type": "string" },
+          "priority": { "type": "string", "enum": ["high", "medium", "low"] },
+          "status": { "type": "string", "enum": ["pending", "in_progress", "completed", "blocked"] }
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "required": true,
+      "description": "约束条件",
+      "properties": {
+        "hard_constraints": {
+          "type": "array",
+          "description": "硬性约束（必须满足）",
+          "items": {
+            "type": "object",
+            "properties": {
+              "constraint": { "type": "string" },
+              "source": { "type": "string" }
+            }
+          }
+        },
+        "soft_constraints": {
+          "type": "array",
+          "description": "软性约束（尽量满足）",
+          "items": {
+            "type": "object",
+            "properties": {
+              "constraint": { "type": "string" },
+              "priority": { "type": "string", "enum": ["high", "medium", "low"] }
+            }
+          }
+        }
+      }
+    },
+    "success_criteria": {
+      "type": "array",
+      "required": true,
+      "description": "成功标准",
+      "items": {
+        "type": "object",
+        "properties": {
+          "criterion": { "type": "string" },
+          "measurable": { "type": "boolean" },
+          "threshold": { "type": "string" }
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "required": false,
+      "description": "目标上下文",
+      "properties": {
+        "domain": { "type": "string", "description": "领域" },
+        "urgency": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "importance": { "type": "string", "enum": ["low", "medium", "high"] },
+        "time_sensitivity": { "type": "boolean" }
+      }
+    },
+    "stakeholders": {
+      "type": "array",
+      "required": false,
+      "description": "相关方",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "role": { "type": "string" },
+          "interest": { "type": "string" }
+        }
+      }
+    },
+    "risks": {
+      "type": "array",
+      "required": false,
+      "description": "风险因素",
+      "items": {
+        "type": "object",
+        "properties": {
+          "risk": { "type": "string" },
+          "probability": { "type": "string", "enum": ["low", "medium", "high"] },
+          "impact": { "type": "string", "enum": ["low", "medium", "high"] },
+          "mitigation": { "type": "string" }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "required": false,
+      "description": "依赖关系",
+      "items": {
+        "type": "object",
+        "properties": {
+          "depends_on": { "type": "string" },
+          "type": { "type": "string", "enum": ["sequential", "parallel", "conditional"] }
+        }
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "required": true,
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "required": true,
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "required": true,
+      "enum": ["identified", "refined", "in_progress", "completed", "abandoned"]
+    }
+  },
+  "goal_types": {
+    "information": {
+      "description": "获取信息",
+      "examples": ["查询价格", "了解政策", "搜索资料"]
+    },
+    "action": {
+      "description": "执行操作",
+      "examples": ["发送消息", "创建文件", "修改配置"]
+    },
+    "creation": {
+      "description": "创建内容",
+      "examples": ["写文章", "生成报告", "设计方案"]
+    },
+    "decision": {
+      "description": "辅助决策",
+      "examples": ["选择方案", "评估风险", "比较选项"]
+    },
+    "planning": {
+      "description": "制定计划",
+      "examples": ["项目规划", "任务安排", "资源分配"]
+    },
+    "exploration": {
+      "description": "探索发现",
+      "examples": ["了解新领域", "发现可能性", "调研市场"]
+    }
+  },
+  "example": {
+    "goal_id": "goal_20260406_001",
+    "goal_type": "creation",
+    "primary_goal": "完成系统架构重构，实现生产级智能体平台",
+    "sub_goals": [
+      {
+        "goal": "完成第一阶段30个文件",
+        "priority": "high",
+        "status": "completed"
+      },
+      {
+        "goal": "完成第二阶段30个文件",
+        "priority": "high",
+        "status": "in_progress"
+      }
+    ],
+    "constraints": {
+      "hard_constraints": [
+        {
+          "constraint": "所有JSON文件必须可机读",
+          "source": "user_request"
+        },
+        {
+          "constraint": "禁止无限扩写、禁止无依据推断、禁止越权执行",
+          "source": "user_request"
+        }
+      ],
+      "soft_constraints": [
+        {
+          "constraint": "尽量使用表格和结构化输出",
+          "priority": "medium"
+        }
+      ]
+    },
+    "success_criteria": [
+      {
+        "criterion": "60个文件全部完成",
+        "measurable": true,
+        "threshold": "60/60"
+      },
+      {
+        "criterion": "所有文件符合规范",
+        "measurable": true,
+        "threshold": "100%"
+      }
+    ],
+    "context": {
+      "domain": "系统架构",
+      "urgency": "high",
+      "importance": "high",
+      "time_sensitivity": false
+    },
+    "created_at": "2026-04-06T10:30:00+08:00",
+    "updated_at": "2026-04-06T11:12:00+08:00",
+    "status": "in_progress"
+  }
+}

@@ -1,0 +1,239 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Knowledge Graph Schema",
+  "description": "知识图谱结构定义，支持实体、关系、属性的结构化存储",
+  "definitions": {
+    "EntityId": {
+      "type": "string",
+      "description": "实体唯一标识符",
+      "pattern": "^(user|project|doc|task|pref|decision|risk|milestone|agent|tool|concept)_[a-zA-Z0-9_-]+$"
+    },
+    "EntityType": {
+      "type": "string",
+      "description": "实体类型",
+      "enum": [
+        "user",
+        "project", 
+        "document",
+        "task",
+        "preference",
+        "decision",
+        "risk",
+        "milestone",
+        "agent",
+        "tool",
+        "concept",
+        "event",
+        "resource",
+        "constraint"
+      ]
+    },
+    "RelationType": {
+      "type": "string",
+      "description": "关系类型",
+      "enum": [
+        "owns",
+        "belongs_to",
+        "depends_on",
+        "blocks",
+        "relates_to",
+        "references",
+        "created_by",
+        "assigned_to",
+        "part_of",
+        "precedes",
+        "follows",
+        "conflicts_with",
+        "supports",
+        "contradicts",
+        "derived_from",
+        "similar_to",
+        "parent_of",
+        "child_of",
+        "collaborates_with",
+        "uses",
+        "produces",
+        "consumes",
+        "triggers",
+        "causes",
+        "mitigates",
+        "escalates"
+      ]
+    },
+    "Confidence": {
+      "type": "number",
+      "description": "置信度",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 1.0
+    },
+    "Source": {
+      "type": "object",
+      "description": "来源信息",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["user_input", "system_inference", "external_api", "document", "agent_analysis", "historical_data"]
+        },
+        "reference": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "session_id": { "type": "string" }
+      }
+    }
+  },
+  "type": "object",
+  "properties": {
+    "entities": {
+      "type": "array",
+      "description": "实体列表",
+      "items": {
+        "type": "object",
+        "required": ["entity_id", "entity_type", "created_at"],
+        "properties": {
+          "entity_id": { "$ref": "#/definitions/EntityId" },
+          "entity_type": { "$ref": "#/definitions/EntityType" },
+          "name": {
+            "type": "string",
+            "description": "实体名称"
+          },
+          "aliases": {
+            "type": "array",
+            "description": "别名列表",
+            "items": { "type": "string" }
+          },
+          "attributes": {
+            "type": "object",
+            "description": "实体属性",
+            "additionalProperties": true
+          },
+          "source": { "$ref": "#/definitions/Source" },
+          "confidence": { "$ref": "#/definitions/Confidence" },
+          "project_scope": {
+            "type": "string",
+            "description": "项目作用域（空表示全局）"
+          },
+          "is_inferred": {
+            "type": "boolean",
+            "description": "是否为推断实体",
+            "default": false
+          },
+          "is_active": {
+            "type": "boolean",
+            "description": "是否活跃",
+            "default": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "last_accessed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "access_count": {
+            "type": "integer",
+            "default": 0
+          },
+          "version": {
+            "type": "string",
+            "default": "1.0"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "relations": {
+      "type": "array",
+      "description": "关系列表",
+      "items": {
+        "type": "object",
+        "required": ["relation_id", "from_entity", "relation_type", "to_entity", "created_at"],
+        "properties": {
+          "relation_id": {
+            "type": "string",
+            "description": "关系唯一标识符",
+            "pattern": "^rel_[a-zA-Z0-9_-]+$"
+          },
+          "from_entity": { "$ref": "#/definitions/EntityId" },
+          "to_entity": { "$ref": "#/definitions/EntityId" },
+          "relation_type": { "$ref": "#/definitions/RelationType" },
+          "is_bidirectional": {
+            "type": "boolean",
+            "description": "是否双向关系",
+            "default": false
+          },
+          "attributes": {
+            "type": "object",
+            "description": "关系属性",
+            "additionalProperties": true
+          },
+          "source": { "$ref": "#/definitions/Source" },
+          "confidence": { "$ref": "#/definitions/Confidence" },
+          "is_inferred": {
+            "type": "boolean",
+            "description": "是否为推断关系",
+            "default": false
+          },
+          "inference_basis": {
+            "type": "string",
+            "description": "推断依据（仅推断关系）"
+          },
+          "project_scope": {
+            "type": "string",
+            "description": "项目作用域"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date-time",
+            "description": "有效期开始"
+          },
+          "valid_until": {
+            "type": "string",
+            "format": "date-time",
+            "description": "有效期结束"
+          },
+          "weight": {
+            "type": "number",
+            "description": "关系权重",
+            "minimum": 0,
+            "maximum": 1,
+            "default": 1.0
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "is_active": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      }
+    },
+    "graph_metadata": {
+      "type": "object",
+      "description": "图谱元数据",
+      "properties": {
+        "graph_id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "project_scope": { "type": "string" },
+        "entity_count": { "type": "integer" },
+        "relation_count": { "type": "integer" },
+        "last_updated": { "type": "string", "format": "date-time" },
+        "version": { "type": "string" }
+      }
+    }
+  }
+}

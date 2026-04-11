@@ -1,0 +1,40 @@
+{
+  "module": "knowledge_graph",
+  "version": "1.0.0",
+  "description": "知识图谱引擎",
+  "features": {
+    "extraction": {
+      "enabled": true,
+      "methods": [
+        "ner",
+        "relation_extraction",
+        "event_extraction"
+      ],
+      "rate_per_second": 1000
+    },
+    "relation_discovery": {
+      "enabled": true,
+      "hidden_relations": true,
+      "confidence_threshold": 0.7
+    },
+    "graph_reasoning": {
+      "enabled": true,
+      "algorithms": [
+        "path_finding",
+        "subgraph_matching",
+        "analogy"
+      ],
+      "max_depth": 5
+    },
+    "fusion": {
+      "enabled": true,
+      "conflict_resolution": "confidence_based",
+      "deduplication": true
+    }
+  },
+  "storage": {
+    "backend": "neo4j",
+    "cache": "redis",
+    "index": "elasticsearch"
+  }
+}
