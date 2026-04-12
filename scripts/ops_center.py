@@ -410,8 +410,95 @@ class OpsCenter:
         print()
         print(f"✅ 证据包已生成: {bundle_path}")
         print(f"   大小: {bundle_path.stat().st_size / 1024:.1f} KB")
-        
+
         return str(bundle_path)
+
+    def cmd_control_plane(self, args: list) -> int:
+        """控制平面命令"""
+        subcommand = args[0] if args else "status"
+
+        if subcommand == "status":
+            # 生成并显示控制平面状态
+            script = self.root / "scripts" / "control_plane.py"
+            if script.exists():
+                result = subprocess.run([sys.executable, str(script)], cwd=self.root)
+                return result.returncode
+            else:
+                print("❌ control_plane.py 不存在")
+                return 1
+
+        elif subcommand == "summary":
+            # 显示摘要
+            state = load_json(self.reports_dir / "ops" / "control_plane_state.json")
+            if state:
+                print("【控制平面摘要】")
+                print(f"  Runtime: {'✅' if state.get('overview', {}).get('runtime_passed') else '❌'}")
+                print(f"  Quality: {'✅' if state.get('overview', {}).get('quality_passed') else '❌'}")
+                print(f"  Release: {'✅' if state.get('overview', {}).get('can_release') else '❌'}")
+                print(f"  Blocking alerts: {state.get('alerts', {}).get('blocking_count', 0)}")
+                print(f"  Open incidents: {state.get('incidents', {}).get('open', 0)}")
+            else:
+                print("❌ 控制平面状态不存在，请先运行 control-plane status")
+            return 0
+
+        elif subcommand == "audit":
+            # 生成并显示审计
+            script = self.root / "scripts" / "control_plane_audit.py"
+            if script.exists():
+                result = subprocess.run([sys.executable, str(script)], cwd=self.root)
+                return result.returncode
+            else:
+                print("❌ control_plane_audit.py 不存在")
+                return 1
+
+        elif subcommand == "export":
+            # 导出
+            return self._export_control_plane()
+
+        else:
+            print(f"未知子命令: {subcommand}")
+            return 1
+
+    def _export_control_plane(self) -> int:
+        """导出控制平面"""
+        import zipfile
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        export_path = self.reports_dir / "ops" / f"control_plane_export_{timestamp}.zip"
+
+        files_to_export = [
+            "ops/control_plane_state.json",
+            "ops/control_plane_audit.json",
+            "ops/ops_state.json",
+            "remediation/approval_queue.json",
+            "remediation/approval_history.json",
+            "remediation/auto_execute_audit.json",
+            "remediation/auto_execute_summary.json",
+        ]
+
+        print(f"导出控制平面: {export_path}")
+
+        with zipfile.ZipFile(export_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+            for f in files_to_export:
+                src = self.reports_dir / f
+                if src.exists():
+                    zf.write(src, f)
+                    print(f"  + {f}")
+
+        print()
+        print(f"✅ 导出完成: {export_path}")
+        print(f"   大小: {export_path.stat().st_size / 1024:.1f} KB")
+        return 0
+
+    def cmd_approval(self, args: list) -> int:
+        """审批命令"""
+        script = self.root / "scripts" / "approval_manager.py"
+        if not script.exists():
+            print("❌ approval_manager.py 不存在")
+            return 1
+
+        result = subprocess.run([sys.executable, str(script)] + args, cwd=self.root)
+        return result.returncode
 
 def main():
     if len(sys.argv) < 2:
@@ -434,14 +521,21 @@ def main():
         print("  remediation history       - 查看处置历史")
         print("  guard [--reset <action>]  - 查看熔断状态")
         print("  audit [--denied]          - 查看自动执行审计")
+        print("  control-plane status      - 生成控制平面状态")
+        print("  control-plane summary     - 显示控制平面摘要")
+        print("  control-plane audit       - 生成控制平面审计")
+        print("  control-plane export      - 导出控制平面")
+        print("  approval list             - 列出待审批项")
+        print("  approval grant <id> <owner> - 批准")
+        print("  approval deny <id> <owner> <reason> - 拒绝")
         return 0
-    
+
     root = get_project_root()
     ops = OpsCenter(root)
-    
+
     command = sys.argv[1]
     args = sys.argv[2:]
-    
+
     if command == "status":
         ops.cmd_status()
     elif command == "verify":
@@ -478,9 +572,15 @@ def main():
         if remediation_script.exists():
             result = subprocess.run([sys.executable, str(remediation_script), "audit"] + args, cwd=root)
             return result.returncode
+    elif command == "control-plane":
+        # 控制平面命令
+        return ops.cmd_control_plane(args)
+    elif command == "approval":
+        # 审批命令
+        return ops.cmd_approval(args)
     else:
         print(f"未知命令: {command}")
-    
+
     return 0
 
 if __name__ == "__main__":

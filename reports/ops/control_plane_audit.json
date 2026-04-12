@@ -1,0 +1,324 @@
+{
+  "generated_at": "2026-04-12T23:06:02.143645",
+  "version": "1.0.0",
+  "release_gates": [
+    {
+      "timestamp": "20260412_224737",
+      "can_release": true,
+      "runtime_passed": true,
+      "quality_passed": true
+    },
+    {
+      "timestamp": "20260412_223918",
+      "can_release": true,
+      "runtime_passed": true,
+      "quality_passed": true
+    },
+    {
+      "timestamp": "20260412_222531",
+      "can_release": true,
+      "runtime_passed": true,
+      "quality_passed": true
+    },
+    {
+      "timestamp": "20260412_220549",
+      "can_release": true,
+      "runtime_passed": true,
+      "quality_passed": true
+    },
+    {
+      "timestamp": "20260412_173403",
+      "can_release": true,
+      "runtime_passed": true,
+      "quality_passed": true
+    },
+    {
+      "timestamp": "20260412_171817",
+      "can_release": true,
+      "runtime_passed": true,
+      "quality_passed": true
+    }
+  ],
+  "nightly_audits": [
+    {
+      "timestamp": "20260412_224723",
+      "passed": true,
+      "p0_count": 0,
+      "p1_count": 0
+    },
+    {
+      "timestamp": "20260412_223903",
+      "passed": true,
+      "p0_count": 0,
+      "p1_count": 0
+    },
+    {
+      "timestamp": "20260412_222516",
+      "passed": true,
+      "p0_count": 0,
+      "p1_count": 0
+    },
+    {
+      "timestamp": "20260412_220536",
+      "passed": true,
+      "p0_count": 0,
+      "p1_count": 0
+    },
+    {
+      "timestamp": "20260412_195356",
+      "passed": true,
+      "p0_count": 0,
+      "p1_count": 0
+    },
+    {
+      "timestamp": "20260412_173350",
+      "passed": true,
+      "p0_count": 0,
+      "p1_count": 0
+    },
+    {
+      "timestamp": "20260412_171830",
+      "passed": true,
+      "p0_count": 0,
+      "p1_count": 0
+    },
+    {
+      "timestamp": "20260412_171804",
+      "passed": true,
+      "p0_count": 0,
+      "p1_count": 0
+    },
+    {
+      "timestamp": "20260412_170945",
+      "passed": true,
+      "p0_count": 0,
+      "p1_count": 0
+    },
+    {
+      "timestamp": "20260412_165954",
+      "passed": true,
+      "p0_count": 0,
+      "p1_count": 0
+    }
+  ],
+  "blocking_alerts": [
+    {
+      "alert_type": "WEAK_REGRESSION",
+      "severity": "warning",
+      "message": "检测到 1 个弱回归",
+      "details": {
+        "regressions": [
+          {
+            "type": "weak",
+            "change": {
+              "field": "p2_count",
+              "from": 27,
+              "to": 33
+            },
+            "source": "runtime"
+          }
+        ]
+      }
+    }
+  ],
+  "incidents": [
+    {
+      "incident_id": "INC-20260412174545",
+      "alert_type": "P0_BLOCKED",
+      "severity": "blocking",
+      "opened_at": "2026-04-12T17:45:45.587820",
+      "status": "resolved",
+      "owner": null,
+      "source_report": {
+        "runtime": "2026-04-12T17:34:03.287214",
+        "quality": "2026-04-12T17:34:03.487790",
+        "release": "2026-04-12T17:34:03.679687",
+        "nightly": "2026-04-12T17:33:50.228675"
+      },
+      "blocked_reasons": [],
+      "resolution_note": "告警已自动恢复",
+      "resolved_at": "2026-04-12T17:46:26.127580"
+    },
+    {
+      "incident_id": "INC-20260412193247",
+      "alert_type": "P0_BLOCKED",
+      "severity": "blocking",
+      "opened_at": "2026-04-12T19:32:47.544184",
+      "status": "resolved",
+      "owner": null,
+      "source_report": {
+        "runtime": "2026-04-12T17:34:03.287214",
+        "quality": "2026-04-12T17:34:03.487790",
+        "release": "2026-04-12T17:34:03.679687",
+        "nightly": "2026-04-12T17:33:50.228675"
+      },
+      "blocked_reasons": [],
+      "resolution_note": "告警已自动恢复",
+      "resolved_at": "2026-04-12T19:33:03.292192"
+    },
+    {
+      "incident_id": "INC-20260412200403",
+      "alert_type": "P0_BLOCKED",
+      "severity": "blocking",
+      "opened_at": "2026-04-12T20:04:03.905984",
+      "status": "resolved",
+      "owner": null,
+      "source_report": {
+        "runtime": "2026-04-12T19:53:56.437517",
+        "quality": "2026-04-12T19:53:56.645735",
+        "release": "2026-04-12T17:34:03.679687",
+        "nightly": "2026-04-12T19:53:56.667981"
+      },
+      "blocked_reasons": [],
+      "resolution_note": "告警已自动恢复",
+      "resolved_at": "2026-04-12T20:04:38.657857"
+    },
+    {
+      "incident_id": "INC-20260412201219",
+      "alert_type": "P0_BLOCKED",
+      "severity": "blocking",
+      "opened_at": "2026-04-12T20:12:19.010968",
+      "status": "resolved",
+      "owner": null,
+      "source_report": {
+        "runtime": "2026-04-12T19:53:56.437517",
+        "quality": "2026-04-12T19:53:56.645735",
+        "release": "2026-04-12T17:34:03.679687",
+        "nightly": "2026-04-12T19:53:56.667981"
+      },
+      "blocked_reasons": [],
+      "resolution_note": "告警已自动恢复",
+      "resolved_at": "2026-04-12T20:13:00.277180"
+    },
+    {
+      "incident_id": "INC-20260412201346",
+      "alert_type": "P0_BLOCKED",
+      "severity": "blocking",
+      "opened_at": "2026-04-12T20:13:46.220929",
+      "status": "resolved",
+      "owner": null,
+      "source_report": {
+        "runtime": "2026-04-12T19:53:56.437517",
+        "quality": "2026-04-12T19:53:56.645735",
+        "release": "2026-04-12T17:34:03.679687",
+        "nightly": "2026-04-12T19:53:56.667981"
+      },
+      "blocked_reasons": [],
+      "resolution_note": "告警已自动恢复",
+      "resolved_at": "2026-04-12T20:13:58.346021"
+    }
+  ],
+  "remediations": [
+    {
+      "action_id": "rem_20260412_212756_740",
+      "action_type": "retry_notifications",
+      "mode": "execute",
+      "success": true,
+      "timestamp": "2026-04-12T21:27:56"
+    },
+    {
+      "action_id": "rem_20260412_212721_731",
+      "action_type": "retry_notifications",
+      "mode": "execute",
+      "success": false,
+      "timestamp": "2026-04-12T21:27:21"
+    },
+    {
+      "action_id": "rem_20260412_212715_730",
+      "action_type": "retry_notifications",
+      "mode": "dry-run",
+      "success": true,
+      "timestamp": "2026-04-12T21:27:15"
+    },
+    {
+      "action_id": "rem_20260412_212657_728",
+      "action_type": "rebuild_dashboard",
+      "mode": "execute",
+      "success": true,
+      "timestamp": "2026-04-12T21:26:57"
+    },
+    {
+      "action_id": "rem_20260412_211535_675",
+      "action_type": "rebuild_ops_state",
+      "mode": "execute",
+      "success": true,
+      "timestamp": "2026-04-12T21:15:35"
+    },
+    {
+      "action_id": "rem_20260412_211529_674",
+      "action_type": "rebuild_dashboard",
+      "mode": "dry-run",
+      "success": true,
+      "timestamp": "2026-04-12T21:15:29"
+    }
+  ],
+  "approvals": [],
+  "timeline": [
+    {
+      "type": "release_gate",
+      "timestamp": "20260412_224737",
+      "result": "pass"
+    },
+    {
+      "type": "release_gate",
+      "timestamp": "20260412_223918",
+      "result": "pass"
+    },
+    {
+      "type": "release_gate",
+      "timestamp": "20260412_222531",
+      "result": "pass"
+    },
+    {
+      "type": "release_gate",
+      "timestamp": "20260412_220549",
+      "result": "pass"
+    },
+    {
+      "type": "release_gate",
+      "timestamp": "20260412_173403",
+      "result": "pass"
+    },
+    {
+      "type": "release_gate",
+      "timestamp": "20260412_171817",
+      "result": "pass"
+    },
+    {
+      "type": "remediation",
+      "timestamp": "2026-04-12T21:27:56",
+      "action": "retry_notifications",
+      "result": "success"
+    },
+    {
+      "type": "remediation",
+      "timestamp": "2026-04-12T21:27:21",
+      "action": "retry_notifications",
+      "result": "fail"
+    },
+    {
+      "type": "remediation",
+      "timestamp": "2026-04-12T21:27:15",
+      "action": "retry_notifications",
+      "result": "success"
+    },
+    {
+      "type": "remediation",
+      "timestamp": "2026-04-12T21:26:57",
+      "action": "rebuild_dashboard",
+      "result": "success"
+    },
+    {
+      "type": "remediation",
+      "timestamp": "2026-04-12T21:15:35",
+      "action": "rebuild_ops_state",
+      "result": "success"
+    },
+    {
+      "type": "remediation",
+      "timestamp": "2026-04-12T21:15:29",
+      "action": "rebuild_dashboard",
+      "result": "success"
+    }
+  ]
+}

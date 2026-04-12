@@ -57,6 +57,14 @@ jobs:
       run: |
         python scripts/remediation_center.py auto-execute --profile nightly_auto --workflow nightly
 
+    - name: Control Plane State
+      run: |
+        python scripts/ops_center.py control-plane status
+
+    - name: Control Plane Audit
+      run: |
+        python scripts/ops_center.py control-plane audit
+
     - name: Create Summary
       run: |
         echo "## 🌙 Nightly Audit Results" >> $GITHUB_STEP_SUMMARY

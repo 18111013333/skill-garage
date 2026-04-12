@@ -65,6 +65,14 @@ jobs:
       run: |
         python scripts/remediation_center.py auto-execute --profile release_auto --workflow release-gate
 
+    - name: Control Plane State
+      run: |
+        python scripts/ops_center.py control-plane status
+
+    - name: Control Plane Audit
+      run: |
+        python scripts/ops_center.py control-plane audit
+
     - name: Create Summary
       run: |
         echo "## 🚀 Release Gate Results" >> $GITHUB_STEP_SUMMARY
