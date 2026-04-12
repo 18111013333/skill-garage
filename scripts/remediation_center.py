@@ -201,7 +201,7 @@ class RemediationCenter:
 
         return issues
 
-    def cmd_plan(self) -> Dict:
+    def cmd_plan(self, save: bool = True) -> Dict:
         """输出建议处置动作"""
         print("╔══════════════════════════════════════════════════╗")
         print("║              处置建议                           ║")
@@ -263,6 +263,17 @@ class RemediationCenter:
                 print(f"  python scripts/remediation_center.py execute {item['action']}")
             print()
 
+        # 保存 plan 结果
+        if save:
+            self.remediation_dir.mkdir(parents=True, exist_ok=True)
+            plan_path = self.remediation_dir / "latest_remediation_plan.json"
+            save_json(plan_path, plan)
+            print(f"Plan 已保存: {plan_path}")
+            print()
+
+            # 更新 summary
+            self._update_summary(plan)
+
         return plan
 
     def _record_action(self, action_id: str, action_type: str, mode: str,
@@ -294,6 +305,46 @@ class RemediationCenter:
         self.history_dir.mkdir(parents=True, exist_ok=True)
         history_path = self.history_dir / f"{record['action_id']}.json"
         save_json(history_path, record)
+
+        # 更新 summary
+        self._update_summary_after_action(record)
+
+    def _update_summary(self, plan: Dict = None):
+        """更新 remediation_summary.json"""
+        summary_path = self.remediation_dir / "remediation_summary.json"
+
+        # 读取现有 summary
+        summary = load_json(summary_path) or {}
+
+        # 更新 plan 信息
+        if plan:
+            summary["latest_plan_generated_at"] = plan.get("generated_at")
+            summary["pending_safe_actions"] = [a["action"] for a in plan.get("safe_auto_actions", [])]
+
+        # 保存
+        summary["updated_at"] = datetime.now().isoformat()
+        summary["available_safe_actions"] = self.SAFE_AUTO_ACTIONS
+        save_json(summary_path, summary)
+
+    def _update_summary_after_action(self, record: Dict):
+        """执行动作后更新 summary"""
+        summary_path = self.remediation_dir / "remediation_summary.json"
+        summary = load_json(summary_path) or {}
+
+        summary["latest_execute_at"] = record.get("finished_at")
+        summary["latest_action_type"] = record.get("action_type")
+        summary["latest_action_success"] = record.get("success")
+        summary["latest_action_id"] = record.get("action_id")
+
+        # 统计最近失败
+        if not record.get("success"):
+            if "failed_recent_actions" not in summary:
+                summary["failed_recent_actions"] = []
+            summary["failed_recent_actions"].append(record.get("action_id"))
+            summary["failed_recent_actions"] = summary["failed_recent_actions"][-10:]  # 保留最近10个
+
+        summary["updated_at"] = datetime.now().isoformat()
+        save_json(summary_path, summary)
 
     def _execute_command(self, command: str, timeout: int = 60) -> tuple:
         """执行命令"""
@@ -442,14 +493,35 @@ class RemediationCenter:
         record["success"] = success
 
         if success:
+            # 根据动作类型确定 changed_files
+            if action == "rebuild_dashboard":
+                record["changed_files"] = [
+                    "reports/dashboard/ops_dashboard.json",
+                    "reports/dashboard/ops_dashboard.md",
+                    "reports/dashboard/ops_dashboard.html"
+                ]
+            elif action == "rebuild_ops_state":
+                record["changed_files"] = ["reports/ops/ops_state.json"]
+            elif action == "rebuild_bundle":
+                # 找到最新生成的 bundle
+                bundle_dir = self.reports_dir / "bundles"
+                if bundle_dir.exists():
+                    bundles = sorted(bundle_dir.glob("ops_bundle_*.zip"), reverse=True)
+                    if bundles:
+                        record["changed_files"] = [f"reports/bundles/{bundles[0].name}"]
+
             print(f"【输出】")
             print(stdout[:500] if len(stdout) > 500 else stdout)
             print()
+            print(f"【修改的文件】")
+            for f in record["changed_files"]:
+                print(f"  • {f}")
+            print()
             print(f"✅ 执行成功: {action_id}")
         else:
-            record["error"] = stderr or "Unknown error"
+            record["error"] = stderr or stdout or "Unknown error"
             print(f"【错误】")
-            print(stderr)
+            print(stderr or stdout)
             print()
             print(f"❌ 执行失败: {action_id}")
 
@@ -458,6 +530,7 @@ class RemediationCenter:
 
     def _retry_notifications_internal(self) -> tuple:
         """内部方法：重试通知"""
+        changed_files = []
         try:
             # 导入 NotificationManager
             sys.path.insert(0, str(self.root))
@@ -466,16 +539,28 @@ class RemediationCenter:
             # 读取 latest_alerts
             alerts = load_json(self.reports_dir / "alerts" / "latest_alerts.json")
             if not alerts:
+                print("无告警数据")
                 return False, []
 
             # 重新发送通知
             nm = NotificationManager(self.root)
-            result = nm.send_all(alerts)
+            result = nm.send_notifications(alerts)
 
-            return result.get("total_failed", 0) == 0, ["reports/alerts/notification_result.json"]
+            changed_files.append("reports/alerts/notification_result.json")
+
+            # 检查是否有 history 更新
+            history_path = self.reports_dir / "alerts" / "notification_history.json"
+            if history_path.exists():
+                changed_files.append("reports/alerts/notification_history.json")
+
+            success = result.get("total_failed", 0) == 0
+            print(f"通知结果: sent={result.get('total_sent', 0)}, failed={result.get('total_failed', 0)}")
+            return success, changed_files
         except Exception as e:
             print(f"重试通知失败: {e}")
-            return False, []
+            import traceback
+            traceback.print_exc()
+            return False, changed_files
 
     def cmd_history(self, last: int = 10, action_type: str = None, failed: bool = False):
         """查看历史"""
