@@ -65,6 +65,47 @@ openclaw cron add "0 18 * * *" --message "提醒" --channel xiaoyi-channel
 
 安装前执行 `umask 0022`，防止权限问题。
 
+## 备份打包
+
+### 强制排除规则
+
+**所有备份压缩包必须排除以下内容：**
+
+| 排除项 | 路径/模式 | 原因 |
+|--------|-----------|------|
+| 备份目录 | `.openclaw/backup/` | 避免嵌套备份 |
+| 浏览器缓存 | `.openclaw/browser/` | 可重建，占空间 |
+| NPM 缓存 | `.openclaw/npm-cache/` | 可重建 |
+| 历史会话 | `*.jsonl.reset.*` | 旧快照 |
+| 已删除会话 | `*.jsonl.deleted.*` | 无用数据 |
+| 大型工具 | `magika`, `git-lfs` | 可重装 (43MB) |
+| 旧备份 | `*.tar.gz`, `*.zip` | 避免嵌套 |
+
+### 使用方法
+
+```bash
+# 使用优化脚本（自动应用排除规则）
+/home/sandbox/.openclaw/workspace/infrastructure/backup_optimized.sh
+
+# 或使用排除规则文件
+tar -czvf backup.tar.gz \
+    --exclude-from=/home/sandbox/.openclaw/workspace/infrastructure/backup_excludes.txt \
+    -C /home/sandbox .openclaw .local/bin
+```
+
+### 清理工具
+
+```bash
+# 查看可清理空间
+clean-backup status
+
+# 清理 7 天前的备份
+clean-backup clean
+
+# 激进清理
+clean-backup aggressive
+```
+
 ---
 
-**版本**: V2.7.0
+**版本**: V2.8.0

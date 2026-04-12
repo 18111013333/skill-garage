@@ -1,0 +1,31 @@
+# OpenClaw 备份排除规则
+# 用于 tar --exclude-from 参数
+# 格式: 使用通配符匹配
+
+# 备份目录（避免嵌套）
+*backup*
+
+# 浏览器缓存（可重建）
+*browser*
+
+# NPM 缓存
+*npm-cache*
+
+# 历史会话快照
+*.jsonl.reset.*
+*.jsonl.deleted.*
+
+# 大型工具（可重装）
+magika
+git-lfs
+
+# 旧备份文件
+*.tar.gz
+*.zip
+
+# Git 临时文件
+*.tmp
+*.temp
+*.swp
+*.swo
+*~

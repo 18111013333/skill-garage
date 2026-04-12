@@ -1,11 +1,12 @@
-"""统一搜索集成 - V4.3.2 第三阶段最终修正
+"""统一搜索集成 - V4.3.2 第三阶段最终微修
 
 修复问题：
-1. Vector 模式明确输出
+1. Vector 模式明确输出 (embedding / degraded)
 2. Token 预算硬限制
 3. 搜索结果质量（二进制文件过滤）
 4. Rewrite 质量过滤
 5. 移除硬编码路径
+6. Token 预算与 LazyLoader 联动重置
 """
 
 from typing import List, Dict, Optional, Any, Tuple
@@ -38,74 +39,221 @@ class SearchResult:
     metadata: Dict[str, Any] = None
 
 class QwenEmbeddingEngine:
-    """真实 Qwen3-Embedding-8B 引擎"""
+    """真实 Qwen3-Embedding-8B 引擎 - V6.0.0
+    
+    状态分离：
+    - config_loaded: 配置是否成功加载
+    - connection_ok: 连接测试是否成功
+    - mode: embedding / degraded
+    - reason: 明确的失败原因
+    
+    重要：连接失败不会清空配置字段，方便诊断
+    """
+    
+    # 默认配置
+    DEFAULT_CONFIG = {
+        "provider": "openai_compatible",
+        "base_url": "https://ai.gitee.com/v1",
+        "model": "Qwen3-Embedding-8B",
+        "dimensions": 1024,
+        "timeout_seconds": 30
+    }
     
     def __init__(self):
-        self.config = self._load_config()
+        # 状态字段
+        self.config_loaded = False
+        self.connection_ok = False
         self._mode = "unknown"
-        self._test_connection()
+        self._reason = None
+        self._exception_type = None
+        self._exception_message = None
+        
+        # 配置字段（即使连接失败也保留）
+        self.provider = None
+        self.base_url = None
+        self.model = None
+        self.api_key = None
+        self.dimensions = 128
+        self.timeout = 30
+        self.headers = {}
+        
+        # API Key 来源
+        self._api_key_source = None
+        
+        # 只加载配置，不做连接测试
+        self._load_config()
     
-    def _load_config(self) -> Dict:
+    def _load_config(self):
+        """只加载配置，不做连接测试"""
+        # 1. 从配置文件加载
+        config = self._load_config_file()
+        emb_config = config.get("embedding", {})
+        
+        # 2. 设置各字段
+        self.provider = emb_config.get("provider", self.DEFAULT_CONFIG["provider"])
+        self.base_url = emb_config.get("base_url", self.DEFAULT_CONFIG["base_url"])
+        self.model = emb_config.get("model", self.DEFAULT_CONFIG["model"])
+        self.dimensions = emb_config.get("dimensions", self.DEFAULT_CONFIG["dimensions"])
+        self.timeout = emb_config.get("timeout_seconds", self.DEFAULT_CONFIG["timeout_seconds"])
+        
+        # 3. API Key：环境变量优先
+        env_api_key = os.environ.get("EMBEDDING_API_KEY")
+        if env_api_key:
+            self.api_key = env_api_key
+            self._api_key_source = "环境变量 EMBEDDING_API_KEY"
+        else:
+            self.api_key = emb_config.get("api_key")
+            if self.api_key:
+                self._api_key_source = "配置文件 llm_config.json"
+        
+        # 4. 设置请求头
+        self.headers = {
+            "Content-Type": "application/json",
+        }
+        if self.api_key:
+            self.headers["Authorization"] = f"Bearer {self.api_key}"
+        
+        # 5. 检查配置是否完整
+        if self.api_key and self.base_url:
+            self.config_loaded = True
+            self._mode = "unknown"  # 需要测试连接才能确定
+            self._reason = "config_loaded_but_not_tested"
+        else:
+            self.config_loaded = False
+            self._mode = "degraded"
+            if not self.api_key:
+                self._reason = "api_key_missing"
+            elif not self.base_url:
+                self._reason = "base_url_missing"
+    
+    def _load_config_file(self) -> Dict:
+        """从项目内加载配置文件"""
         config_path = _get_config_path()
         if config_path.exists():
             try:
                 return json.loads(config_path.read_text())
-            except:
-                pass
+            except Exception as e:
+                self._exception_type = type(e).__name__
+                self._exception_message = str(e)
         return {}
     
-    def _test_connection(self):
-        emb = self.config.get("embedding", {})
-        api_key = emb.get("api_key") or os.environ.get("EMBEDDING_API_KEY")
-        base_url = emb.get("base_url", "https://ai.gitee.com/v1")
-        
-        if not api_key:
+    def test_connection(self) -> bool:
+        """显式测试连接"""
+        if not self.api_key:
+            self.connection_ok = False
             self._mode = "degraded"
-            self.api_key = None
-            self.base_url = None
-            self.model = None
-            self.dimensions = 128
-            return
+            self._reason = "api_key_missing"
+            return False
+        
+        if not self.base_url:
+            self.connection_ok = False
+            self._mode = "degraded"
+            self._reason = "base_url_missing"
+            return False
         
         try:
             data = json.dumps({
-                "model": emb.get("model", "Qwen3-Embedding-8B"),
+                "model": self.model,
                 "input": ["test"]
             }).encode('utf-8')
             
             req = urllib.request.Request(
-                f"{base_url}/embeddings",
+                f"{self.base_url}/embeddings",
                 data=data,
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {api_key}"
-                }
+                headers=self.headers
             )
             
-            with urllib.request.urlopen(req, timeout=10) as resp:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 result = json.loads(resp.read().decode('utf-8'))
-                if result.get("data"):
+                if result.get("data") and len(result["data"]) > 0:
+                    self.connection_ok = True
                     self._mode = "embedding"
-                    self.api_key = api_key
-                    self.base_url = base_url
-                    self.model = emb.get("model", "Qwen3-Embedding-8B")
-                    self.dimensions = emb.get("dimensions", 1024)
-                    return
-        except:
-            pass
-        
-        self._mode = "degraded"
-        self.api_key = None
-        self.base_url = None
-        self.model = None
-        self.dimensions = 128
+                    self._reason = None
+                    self._exception_type = None
+                    self._exception_message = None
+                    return True
+                else:
+                    self.connection_ok = False
+                    self._mode = "degraded"
+                    self._reason = "bad_response_empty_data"
+                    return False
+                    
+        except urllib.error.HTTPError as e:
+            self.connection_ok = False
+            self._mode = "degraded"
+            self._exception_type = "HTTPError"
+            self._exception_message = f"{e.code} {e.reason}"
+            if e.code == 401:
+                self._reason = "unauthorized"
+            elif e.code == 403:
+                self._reason = "forbidden"
+            elif e.code == 404:
+                self._reason = "endpoint_not_found"
+            else:
+                self._reason = f"http_error_{e.code}"
+            return False
+            
+        except urllib.error.URLError as e:
+            self.connection_ok = False
+            self._mode = "degraded"
+            self._exception_type = "URLError"
+            self._exception_message = str(e.reason)
+            if "timed out" in str(e.reason).lower():
+                self._reason = "timeout"
+            elif "name or service not known" in str(e.reason).lower():
+                self._reason = "dns_failed"
+            else:
+                self._reason = "network_error"
+            return False
+            
+        except Exception as e:
+            self.connection_ok = False
+            self._mode = "degraded"
+            self._exception_type = type(e).__name__
+            self._exception_message = str(e)
+            self._reason = "request_failed"
+            return False
     
     def get_mode(self) -> str:
+        """返回当前模式（如果未测试，先测试连接）"""
+        if self._mode == "unknown":
+            self.test_connection()
         return self._mode
     
+    def get_reason(self) -> Optional[str]:
+        """返回失败原因"""
+        return self._reason
+    
+    def get_exception_info(self) -> Tuple[Optional[str], Optional[str]]:
+        """返回异常信息"""
+        return self._exception_type, self._exception_message
+    
+    def get_config_info(self) -> Dict:
+        """返回完整配置信息"""
+        return {
+            "config_loaded": self.config_loaded,
+            "connection_ok": self.connection_ok,
+            "provider": self.provider,
+            "base_url": self.base_url,
+            "model": self.model,
+            "api_key": "已配置" if self.api_key else "未配置",
+            "api_key_source": self._api_key_source,
+            "dimensions": self.dimensions,
+            "timeout": self.timeout,
+            "mode": self._mode,
+            "reason": self._reason,
+            "exception_type": self._exception_type,
+            "exception_message": self._exception_message
+        }
+    
     def encode(self, text: str) -> List[float]:
+        """编码文本为向量"""
+        # 确保已测试连接
+        if self._mode == "unknown":
+            self.test_connection()
+        
         if self._mode == "degraded":
-            return self._hash_encode(text)
+            raise RuntimeError(f"Embedding engine is in degraded mode: {self._reason}")
         
         try:
             data = json.dumps({
@@ -116,21 +264,29 @@ class QwenEmbeddingEngine:
             req = urllib.request.Request(
                 f"{self.base_url}/embeddings",
                 data=data,
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {self.api_key}"
-                }
+                headers=self.headers
             )
             
-            with urllib.request.urlopen(req, timeout=30) as resp:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
                 result = json.loads(resp.read().decode('utf-8'))
                 return result["data"][0]["embedding"]
-        except:
-            return self._hash_encode(text)
+                
+        except Exception as e:
+            # 更新状态
+            self.connection_ok = False
+            self._mode = "degraded"
+            self._exception_type = type(e).__name__
+            self._exception_message = str(e)
+            self._reason = "encode_failed"
+            raise RuntimeError(f"Embedding encode failed: {type(e).__name__}: {e}")
     
     def encode_batch(self, texts: List[str]) -> List[List[float]]:
+        """批量编码文本"""
+        if self._mode == "unknown":
+            self.test_connection()
+        
         if self._mode == "degraded":
-            return [self._hash_encode(t) for t in texts]
+            raise RuntimeError(f"Embedding engine is in degraded mode: {self._reason}")
         
         try:
             data = json.dumps({
@@ -141,27 +297,23 @@ class QwenEmbeddingEngine:
             req = urllib.request.Request(
                 f"{self.base_url}/embeddings",
                 data=data,
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {self.api_key}"
-                }
+                headers=self.headers
             )
             
-            with urllib.request.urlopen(req, timeout=60) as resp:
+            with urllib.request.urlopen(req, timeout=self.timeout * 2) as resp:
                 result = json.loads(resp.read().decode('utf-8'))
                 return [item["embedding"] for item in result["data"]]
-        except:
-            return [self._hash_encode(t) for t in texts]
-    
-    def _hash_encode(self, text: str) -> List[float]:
-        h = hashlib.sha256(text.encode()).hexdigest()
-        vec = [float(int(h[i:i+2], 16)) / 255 for i in range(0, 64, 2)]
-        norm = sum(v * v for v in vec) ** 0.5
-        if norm > 0:
-            vec = [v / norm for v in vec]
-        return vec
+                
+        except Exception as e:
+            self.connection_ok = False
+            self._mode = "degraded"
+            self._exception_type = type(e).__name__
+            self._exception_message = str(e)
+            self._reason = "encode_batch_failed"
+            raise RuntimeError(f"Embedding encode_batch failed: {type(e).__name__}: {e}")
     
     def similarity(self, vec1: List[float], vec2: List[float]) -> float:
+        """计算向量相似度"""
         if not vec1 or not vec2 or len(vec1) != len(vec2):
             return 0.0
         dot = sum(a * b for a, b in zip(vec1, vec2))
@@ -172,21 +324,26 @@ class QwenEmbeddingEngine:
         return dot / (norm1 * norm2)
 
 class IndexExcludeList:
-    """索引排除名单 - 增强二进制文件过滤"""
+    """索引排除名单 - V5.0.0 统一排除规则
+    
+    重要：此排除规则必须与打包排除规则、变更检测排除规则完全一致
+    """
     
     def __init__(self):
         self.exclude_dirs = {
             "node_modules", "__pycache__", ".git", ".svn",
             "archive", "reports", "backups", "tmp", "temp",
             "dist", "build", ".cache", "logs",
-            "repo", "site-packages", "index", "bin", "sbin",
+            "repo", "site-packages", "bin", "sbin",
+            "backup",  # 新增：备份目录
+            # 注意：不排除 "index"，因为 memory_context/index/ 需要打包
         }
         self.exclude_extensions = {
             ".pyc", ".pyo", ".so", ".dll", ".dylib",
             ".tar", ".gz", ".zip", ".rar", ".7z",
             ".mp3", ".mp4", ".avi", ".mov", ".wav",
             ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".ico",
-            ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
+            ".pdf",  # PDF 文件排除
             ".db", ".sqlite", ".sqlite3",
             ".bin", ".exe", ".sh", ".bat", ".cmd", ".run",
             ".out", ".o", ".a", ".lib",
@@ -195,15 +352,15 @@ class IndexExcludeList:
         self.exclude_files = {
             "package-lock.json", "yarn.lock", "pnpm-lock.yaml",
             "composer.lock", "Cargo.lock", "poetry.lock",
-            "keyword_index.json", "fts_index.json", "vector_index.json",
-            "index_metadata.json", "file_states.json", "RECORD",
+            # 索引文件不排除，需要打包
+            "RECORD",
         }
         self.exclude_patterns = [
             "site-packages",
-            "/index/",
-            "memory_context/index/",
+            # 不排除 index 目录，索引文件需要打包
             "/bin/",
             "/sbin/",
+            "backup",  # 新增：备份相关路径
         ]
         # 无扩展名的可执行文件名模式
         self.exclude_no_ext_patterns = [
@@ -211,8 +368,37 @@ class IndexExcludeList:
         ]
     
     def should_exclude(self, path: Path) -> bool:
-        # 检查目录
-        for part in path.parts:
+        """统一排除规则 - V5.0.0
+        
+        重要：只检查相对路径的目录部分，不检查绝对路径中的系统目录
+        """
+        # 跳过符号链接 - 统一规则
+        if path.is_symlink():
+            return True
+        
+        # 获取相对路径部分（排除系统临时目录等）
+        # 只检查项目内的目录名
+        path_parts = path.parts
+        
+        # 找到项目根目录的起始位置
+        # 项目根目录特征：包含 workspace 或 core/skills/infrastructure 等项目目录
+        project_markers = {'workspace', 'core', 'skills', 'infrastructure', 'governance', 
+                          'execution', 'orchestration', 'memory', 'memory_context',
+                          'plugins', '.openclaw'}
+        start_idx = 0
+        for i, part in enumerate(path_parts):
+            if part in project_markers:
+                start_idx = i
+                break
+        
+        # 只检查项目内的目录（从 workspace 或 .openclaw 开始）
+        project_parts = path_parts[start_idx:]
+        
+        # 跳过 workspace 和 .openclaw 本身，只检查其子目录
+        if project_parts and project_parts[0] in {'workspace', '.openclaw'}:
+            project_parts = project_parts[1:]
+        
+        for part in project_parts:
             if part in self.exclude_dirs:
                 return True
         
@@ -227,15 +413,15 @@ class IndexExcludeList:
                 if pattern in name_lower:
                     return True
             # 无扩展名且在 bin 目录
-            if "bin" in path.parts:
+            if "bin" in project_parts:
                 return True
         
         # 检查扩展名
         if path.suffix.lower() in self.exclude_extensions:
             return True
         
-        # 检查路径模式
-        path_str = str(path)
+        # 检查路径模式（只检查项目内路径）
+        path_str = str(Path(*project_parts)) if project_parts else str(path)
         for pattern in self.exclude_patterns:
             if pattern in path_str:
                 return True
@@ -364,12 +550,19 @@ class SnippetGenerator:
         return snippet.strip()
 
 class IndexPersistence:
-    """索引持久化"""
+    """索引持久化 - V5.0.0 单一 canonical file_states
+    
+    重要规则：
+    1. 只有一个正式状态文件：memory_context/index/file_states.json
+    2. .cache/file_states.json 等旧缓存不再参与首启判断
+    3. 符号链接统一跳过，不写入 file_states
+    """
     
     def __init__(self, index_dir: Path = None):
         self.index_dir = index_dir or get_project_root() / "memory_context" / "index"
         self.index_dir.mkdir(parents=True, exist_ok=True)
         
+        # 唯一的 canonical 状态文件
         self.keyword_index_file = self.index_dir / "keyword_index.json"
         self.fts_index_file = self.index_dir / "fts_index.json"
         self.vector_index_file = self.index_dir / "vector_index.json"
@@ -400,6 +593,7 @@ class IndexPersistence:
             self.file_states_file.write_text(json.dumps(file_states, ensure_ascii=False))
     
     def load(self) -> Tuple[Dict, Dict, Dict, Dict, Dict]:
+        """加载索引 - 只从 canonical 位置加载"""
         keyword_index = {}
         fts_index = {}
         vector_index = {}
@@ -430,6 +624,7 @@ class IndexPersistence:
             except:
                 pass
         
+        # 只从 canonical 位置加载 file_states
         if self.file_states_file.exists():
             try:
                 file_states = json.loads(self.file_states_file.read_text())
@@ -450,6 +645,12 @@ class IndexPersistence:
     
     def get_changed_files(self, base_path: Path, file_states: Dict, 
                           index_exclude: 'IndexExcludeList') -> Tuple[List[Path], List[Path], set]:
+        """变更检测 - V5.0.0 统一排除规则
+        
+        重要：必须与建索引时使用同一套排除规则
+        1. 跳过符号链接
+        2. 使用 IndexExcludeList 统一排除
+        """
         new_files = []
         modified_files = []
         current_files = set()
@@ -457,8 +658,12 @@ class IndexPersistence:
         for f in base_path.rglob("*"):
             if not f.is_file():
                 continue
+            # 跳过符号链接 - 统一规则
+            if f.is_symlink():
+                continue
             if self.is_index_file(f):
                 continue
+            # 使用统一的排除规则
             if index_exclude.should_exclude(f):
                 continue
             
@@ -612,7 +817,10 @@ class FTSSearch:
         return results
 
 class VectorSearch:
-    """向量搜索"""
+    """向量搜索 - V5.0.0
+    
+    重要：vector_mode 必须来自引擎的真实健康状态
+    """
     
     def __init__(self, index_exclude: IndexExcludeList = None):
         self.index_exclude = index_exclude or IndexExcludeList()
@@ -621,7 +829,12 @@ class VectorSearch:
         self.documents: Dict[str, str] = {}
     
     def get_mode(self) -> str:
+        """返回引擎的真实健康状态"""
         return self.embedding_engine.get_mode()
+    
+    def get_reason(self) -> Optional[str]:
+        """返回 degraded 原因"""
+        return self.embedding_engine.get_reason()
     
     def index_file(self, file_path: Path, base_path: Path):
         if not file_path.is_file():
@@ -633,10 +846,13 @@ class VectorSearch:
             content = file_path.read_text(errors='ignore')
             file_id = str(file_path.relative_to(base_path))
             
-            embedding = self.embedding_engine.encode(content[:1000])
-            self.embeddings[file_id] = embedding
+            # 只有 embedding 模式才真正编码
+            if self.embedding_engine.get_mode() == "embedding":
+                embedding = self.embedding_engine.encode(content[:1000])
+                self.embeddings[file_id] = embedding
             self.documents[file_id] = content
-        except:
+        except Exception as e:
+            # 索引时失败，跳过该文件
             pass
     
     def remove_file(self, file_id: str):
@@ -656,7 +872,16 @@ class VectorSearch:
                 self.index_file(file_path, base_path)
     
     def search(self, query: str, limit: int = 10) -> List[SearchResult]:
-        query_vec = self.embedding_engine.encode(query)
+        """向量搜索 - 如果 embedding 失败，返回空列表"""
+        # 只有 embedding 模式才执行向量搜索
+        if self.embedding_engine.get_mode() != "embedding":
+            return []
+        
+        try:
+            query_vec = self.embedding_engine.encode(query)
+        except Exception as e:
+            # 编码失败，返回空
+            return []
         
         results = []
         for file_id, vec in self.embeddings.items():
@@ -770,6 +995,18 @@ class UnifiedSearch:
         return "maximum"
     
     def build_index(self, force: bool = False) -> Dict:
+        """构建索引 - V5.0.0 修复首启逻辑
+        
+        修复问题：
+        1. 先检查索引文件是否存在
+        2. 先加载持久化状态（keyword_index, fts_index, vector_index, metadata, file_states）
+        3. 再做变更比较
+        4. 如果索引存在 + metadata 存在 + file_states 存在 + changed_files == [] → 直接返回 mode=loaded
+        
+        禁止的错误结果：
+        - incremental + files_indexed = 0
+        - 第一次先 full_rebuild，第二次才 loaded
+        """
         result = {
             "mode": "unknown",
             "files_indexed": 0,
@@ -780,13 +1017,25 @@ class UnifiedSearch:
         start = time.time()
         
         if not force:
+            # 1. 先检查索引文件是否存在
             keyword_idx, fts_idx, vector_idx, metadata, file_states = self.index_persistence.load()
             
-            if keyword_idx and file_states:
+            # 2. 检查所有必要文件是否都存在
+            all_exist = (
+                self.index_persistence.keyword_index_file.exists() and
+                self.index_persistence.fts_index_file.exists() and
+                self.index_persistence.vector_index_file.exists() and
+                self.index_persistence.metadata_file.exists() and
+                self.index_persistence.file_states_file.exists()
+            )
+            
+            # 3. 如果索引存在，先加载再做变更比较
+            if all_exist and keyword_idx and file_states:
                 new_files, modified_files, deleted_files = self.index_persistence.get_changed_files(
                     self.base_dir, file_states, self.index_exclude
                 )
                 
+                # 4. 如果没有变更，直接返回 loaded
                 if not new_files and not modified_files and not deleted_files:
                     self.keyword_search.keyword_index = keyword_idx
                     self.fts_search.documents = fts_idx
@@ -799,6 +1048,7 @@ class UnifiedSearch:
                     result["time_ms"] = int((time.time() - start) * 1000)
                     return result
                 
+                # 5. 有变更，执行增量更新
                 result["incremental"] = True
                 result["mode"] = "incremental"
                 
@@ -842,6 +1092,7 @@ class UnifiedSearch:
                 result["time_ms"] = int((time.time() - start) * 1000)
                 return result
         
+        # 全量重建
         result["mode"] = "full_rebuild"
         result["incremental"] = False
         
@@ -849,16 +1100,26 @@ class UnifiedSearch:
         self.fts_search.index(self.base_dir)
         self.vector_search.index(self.base_dir)
         
+        # 重建 file_states - 使用统一排除规则
         self._file_states = {}
         for f in self.base_dir.rglob("*"):
-            if f.is_file() and not self.index_exclude.should_exclude(f):
-                if not self.index_persistence.is_index_file(f):
-                    try:
-                        file_id = str(f.relative_to(self.base_dir))
-                        self._file_states[file_id] = self.index_persistence.get_file_state(f)
-                        result["files_indexed"] += 1
-                    except:
-                        pass
+            if not f.is_file():
+                continue
+            # 跳过符号链接
+            if f.is_symlink():
+                continue
+            # 使用统一排除规则
+            if self.index_exclude.should_exclude(f):
+                continue
+            if self.index_persistence.is_index_file(f):
+                continue
+            
+            try:
+                file_id = str(f.relative_to(self.base_dir))
+                self._file_states[file_id] = self.index_persistence.get_file_state(f)
+                result["files_indexed"] += 1
+            except:
+                pass
         
         self.index_persistence.save(
             self.keyword_search.keyword_index,
@@ -873,11 +1134,12 @@ class UnifiedSearch:
         return result
     
     def search(self, query: str, mode: str = "balanced", limit: int = 10) -> Dict:
-        """统一搜索 - V4.3.2 最终修正"""
+        """统一搜索 - V4.3.2 第三阶段最终微修"""
         start = time.time()
         
-        # 重置 token 预算
+        # 重置 token 预算和 lazy_loader 状态（联动重置）
         self.token_manager.reset()
+        self.lazy_loader.reset()
         
         # 查询改写
         rewrites = self.query_rewriter.rewrite(query)
@@ -892,7 +1154,8 @@ class UnifiedSearch:
                 "vector_mode": self.get_vector_mode(),
                 "performance_mode": self.get_performance_mode(),
                 "rewrites": rewrites,
-                "token_budget": self.token_manager.get_summary()
+                "token_budget": self.token_manager.get_summary(),
+                "lazy_loader_status": self.lazy_loader.get_status()
             }
         
         # 确保索引已建立

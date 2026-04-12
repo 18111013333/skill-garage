@@ -1,4 +1,4 @@
-# 六层架构定义 V4.3.2
+# 六层架构定义 V4.3.3
 
 > **唯一主架构定义** - 本文档是项目唯一正式运行架构定义
 > 
@@ -8,12 +8,82 @@
 
 | 层级 | 名称 | 职责 | 目录 |
 |------|------|------|------|
-| L1 | Core | 核心认知、身份、规则 | `core/` |
+| L1 | Core | 核心认知、身份、规则、标准 | `core/` |
 | L2 | Memory Context | 记忆上下文、知识库、统一搜索 | `memory_context/` |
-| L3 | Orchestration | 任务编排、工作流、路由 | `orchestration/` |
-| L4 | Execution | 能力执行、技能网关 | `execution/` |
-| L5 | Governance | 稳定治理、安全审计、巡检 | `governance/` |
-| L6 | Infrastructure | 基础设施、工具链、注册表 | `infrastructure/` |
+| L3 | Orchestration | 任务编排、工作流、路由、策略 | `orchestration/` |
+| L4 | Execution | 能力执行、技能网关、交付 | `execution/` |
+| L5 | Governance | 稳定治理、安全审计、合规、计费 | `governance/` |
+| L6 | Infrastructure | 基础设施、工具链、注册表、运维 | `infrastructure/` |
+
+---
+
+## V4.3.3 架构融合更新
+
+### 融合映射
+
+以下目录已融合到六层架构中：
+
+| 原目录 | 融合目标 | 层级 |
+|--------|----------|------|
+| `autonomy/` | `governance/autonomy/` | L5 |
+| `billing/` | `governance/billing/` | L5 |
+| `collaboration/` | `orchestration/collaboration/` | L3 |
+| `compliance/` | `governance/compliance/` | L5 |
+| `config/` | `infrastructure/config/` | L6 |
+| `delivery/` | `execution/delivery/` | L4 |
+| `ecosystem/` | `infrastructure/ecosystem/` | L6 |
+| `extension/` | `infrastructure/extension/` | L6 |
+| `guard/` | `governance/guard/` | L5 |
+| `guide/` | `core/guide/` | L1 |
+| `infra/` | `infrastructure/legacy/` | L6 |
+| `openapi/` | `infrastructure/openapi/` | L6 |
+| `ops/` | `infrastructure/ops/` | L6 |
+| `product/` | `orchestration/product/` | L3 |
+| `reliability/` | `governance/reliability/` | L5 |
+| `simulation/` | `execution/simulation/` | L4 |
+| `standards/` | `core/standards/` | L1 |
+| `strategy/` | `orchestration/strategy/` | L3 |
+| `tenant/` | `infrastructure/tenant/` | L6 |
+
+### 融合后目录结构
+
+```
+workspace/
+├── core/                    # L1: 核心认知层
+│   ├── guide/              # 助手指南（原 guide/）
+│   ├── standards/          # 标准规范（原 standards/）
+│   └── ...
+├── memory_context/          # L2: 记忆上下文层
+├── orchestration/           # L3: 任务编排层
+│   ├── collaboration/      # 协作编排（原 collaboration/）
+│   ├── product/            # 产品编排（原 product/）
+│   ├── strategy/           # 策略编排（原 strategy/）
+│   └── ...
+├── execution/               # L4: 能力执行层
+│   ├── delivery/           # 交付执行（原 delivery/）
+│   ├── simulation/         # 模拟执行（原 simulation/）
+│   └── ...
+├── governance/              # L5: 稳定治理层
+│   ├── autonomy/           # 自治治理（原 autonomy/）
+│   ├── billing/            # 计费中心（原 billing/）
+│   ├── compliance/         # 合规中心（原 compliance/）
+│   ├── guard/              # 文件守护（原 guard/）
+│   ├── reliability/        # 可靠性（原 reliability/）
+│   └── ...
+├── infrastructure/          # L6: 基础设施层
+│   ├── config/             # 统一配置（原 config/）
+│   ├── ecosystem/          # 生态管理（原 ecosystem/）
+│   ├── extension/          # 扩展管理（原 extension/）
+│   ├── legacy/             # 遗留迁移（原 infra/）
+│   ├── openapi/            # OpenAPI（原 openapi/）
+│   ├── ops/                # 运维工具（原 ops/）
+│   ├── tenant/             # 租户管理（原 tenant/）
+│   └── ...
+├── skills/                  # 技能目录
+├── plugins/                 # 插件目录
+├── archive/                 # 归档目录
+└── reports/                 # 报告目录
+```
 
 ---
 

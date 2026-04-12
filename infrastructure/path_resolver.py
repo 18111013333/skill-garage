@@ -16,37 +16,55 @@ from typing import Optional
 
 def get_project_root() -> Path:
     """
-    获取项目根目录 - 统一规则
+    获取项目根目录 - V3.0.0 修复冷启动污染
     
     优先级：
-    1. OPENCLAW_WORKSPACE 环境变量
-    2. OPENCLAW_GIT_DIR 环境变量的父目录
-    3. 自动发现（向上查找 core/ARCHITECTURE.md）
-    4. 调用文件所在项目的根目录
+    1. OPENCLAW_PROJECT_ROOT 环境变量（显式项目根）
+    2. OPENCLAW_WORKSPACE 环境变量
+    3. 当前工作目录（如果包含 core/ARCHITECTURE.md）
+    4. 自动发现（向上查找 core/ARCHITECTURE.md）
+    5. 最后才 fallback 到 OPENCLAW_GIT_DIR（仅用于 repo 根推导）
+    6. 回退到当前工作目录
+    
+    重要：OPENCLAW_GIT_DIR 不能在当前目录已经是完整项目时抢优先级
     """
-    # 1. OPENCLAW_WORKSPACE 环境变量
+    cwd = Path.cwd()
+    
+    # 1. OPENCLAW_PROJECT_ROOT 环境变量（显式项目根）
+    env_project = os.environ.get('OPENCLAW_PROJECT_ROOT')
+    if env_project:
+        path = Path(env_project)
+        if path.exists() and (path / 'core' / 'ARCHITECTURE.md').exists():
+            return path
+    
+    # 2. OPENCLAW_WORKSPACE 环境变量
     env_workspace = os.environ.get('OPENCLAW_WORKSPACE')
     if env_workspace:
         path = Path(env_workspace)
-        if path.exists():
+        if path.exists() and (path / 'core' / 'ARCHITECTURE.md').exists():
             return path
     
-    # 2. OPENCLAW_GIT_DIR 的父目录
-    env_git = os.environ.get('OPENCLAW_GIT_DIR')
-    if env_git:
-        path = Path(env_git).parent
-        if path.exists() and (path / 'core').exists():
-            return path
+    # 3. 当前工作目录优先（如果包含项目文件）
+    if (cwd / 'core' / 'ARCHITECTURE.md').exists():
+        return cwd
     
-    # 3. 自动发现
-    current = Path.cwd()
+    # 4. 自动发现（向上查找）
+    current = cwd
     while current != current.parent:
         if (current / 'core' / 'ARCHITECTURE.md').exists():
             return current
         current = current.parent
     
-    # 4. 回退到当前工作目录
-    return Path.cwd()
+    # 5. 最后才 fallback 到 OPENCLAW_GIT_DIR（仅用于 repo 根推导）
+    # 注意：只有当当前目录不是完整项目时才使用
+    env_git = os.environ.get('OPENCLAW_GIT_DIR')
+    if env_git:
+        path = Path(env_git).parent
+        if path.exists() and (path / 'core' / 'ARCHITECTURE.md').exists():
+            return path
+    
+    # 6. 回退到当前工作目录
+    return cwd
 
 def get_core_dir() -> Path:
     """获取 core 目录"""

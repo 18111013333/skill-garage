@@ -119,6 +119,38 @@
 - 新增检查规则: 更新调用前检查表
 - 新增回退方案: 更新失败回退表
 
+## 备份打包规范
+
+### 强制排除规则
+
+**所有备份压缩包必须排除以下内容：**
+
+| 排除项 | 路径/模式 | 原因 |
+|--------|-----------|------|
+| 备份目录 | `.openclaw/backup/` | 避免嵌套备份 |
+| 浏览器缓存 | `.openclaw/browser/` | 可重建，占空间 |
+| NPM 缓存 | `.openclaw/npm-cache/` | 可重建 |
+| 历史会话 | `*.jsonl.reset.*` | 旧快照 |
+| 已删除会话 | `*.jsonl.deleted.*` | 无用数据 |
+| 大型工具 | `magika`, `git-lfs` | 可重装 (43MB) |
+| 旧备份 | `*.tar.gz`, `*.zip` | 避免嵌套 |
+
+### 排除规则文件
+
+位置: `infrastructure/backup_excludes.txt`
+
+### 使用方法
+
+```bash
+# 使用优化脚本
+infrastructure/backup_optimized.sh
+
+# 或使用排除规则文件
+tar -czvf backup.tar.gz \
+    --exclude-from=infrastructure/backup_excludes.txt \
+    -C /home/sandbox .openclaw .local/bin
+```
+
 ## 引用文件
 - `safety/RISK_POLICY.md` - 风险策略
 - `safety/TOOL_GUARDRAILS.json` - 工具护栏配置

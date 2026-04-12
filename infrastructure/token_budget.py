@@ -93,8 +93,14 @@ class LazyLoader:
         self.pending[key] = path
     
     def load(self, key: str, layer: str = "L4") -> Optional[str]:
-        """延迟加载 - 带硬限制"""
-        # 检查是否已超预算
+        """延迟加载 - 带硬限制
+        
+        V4.3.2 最终修正：budget_exceeded 只反映总预算状态
+        - 单个文件太大超过总预算：跳过该文件，不设置 budget_exceeded
+        - 累计使用超过总预算：设置 budget_exceeded = True
+        - 层级预算超限：跳过该文件，不设置 budget_exceeded
+        """
+        # 检查是否已超总预算
         if self._budget_exceeded:
             return None
         
@@ -110,21 +116,29 @@ class LazyLoader:
         
         try:
             content = path.read_text(encoding='utf-8')
+            tokens = self.budget_manager.estimate_tokens(content)
             
-            # 硬限制检查
-            if self.budget_manager.current_usage >= self.budget_manager.max_tokens:
+            # 检查单个文件是否太大（超过剩余预算）
+            remaining = self.budget_manager.max_tokens - self.budget_manager.current_usage
+            if tokens > remaining:
+                # 文件太大，尝试截断
+                max_chars = min(300, int(remaining * 4))  # 估算字符数
+                if max_chars < 100:
+                    # 剩余预算太小，跳过此文件
+                    return None
+                content = content[:max_chars]
+                tokens = self.budget_manager.estimate_tokens(content)
+            
+            # 再次检查截断后是否可以加载
+            if self.budget_manager.current_usage + tokens > self.budget_manager.max_tokens:
+                # 累计超限，设置 budget_exceeded
                 self._budget_exceeded = True
                 return None
             
-            # 检查预算
+            # 检查层级预算
             if not self.budget_manager.can_load(layer, content):
-                # 超预算：截断到最小
-                max_chars = 300
-                content = content[:max_chars]
-                # 检查截断后是否可以加载
-                if not self.budget_manager.can_load(layer, content):
-                    self._budget_exceeded = True
-                    return None
+                # 层级预算超限，跳过此文件但不设置 budget_exceeded
+                return None
             
             self.budget_manager.register_load(layer, content)
             self.loaded[key] = content
