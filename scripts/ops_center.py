@@ -430,7 +430,10 @@ def main():
         print("  remediation plan          - 查看处置建议")
         print("  remediation dry-run <action> - 模拟执行处置")
         print("  remediation execute <action> - 执行处置")
+        print("  remediation auto-execute --profile <profile> - 受控自动执行")
         print("  remediation history       - 查看处置历史")
+        print("  guard [--reset <action>]  - 查看熔断状态")
+        print("  audit [--denied]          - 查看自动执行审计")
         return 0
     
     root = get_project_root()
@@ -463,6 +466,18 @@ def main():
             return 1
         result = subprocess.run([sys.executable, str(remediation_script)] + args, cwd=root)
         return result.returncode
+    elif command == "guard":
+        # 查看熔断状态
+        remediation_script = root / "scripts" / "remediation_center.py"
+        if remediation_script.exists():
+            result = subprocess.run([sys.executable, str(remediation_script), "guard"] + args, cwd=root)
+            return result.returncode
+    elif command == "audit":
+        # 查看审计记录
+        remediation_script = root / "scripts" / "remediation_center.py"
+        if remediation_script.exists():
+            result = subprocess.run([sys.executable, str(remediation_script), "audit"] + args, cwd=root)
+            return result.returncode
     else:
         print(f"未知命令: {command}")
     

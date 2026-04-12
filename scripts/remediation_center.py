@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """
-处置中心 - V1.0.0
+处置中心 - V1.1.0
 
 统一处置入口，支持：
 - plan: 输出建议处置动作
 - dry-run: 模拟执行
 - execute: 执行 safe_auto 动作
+- auto-execute: 受控自动执行
 - history: 查看处置历史
+- guard: 查看熔断状态
+- audit: 查看审计记录
 """
 
 import os
@@ -15,7 +18,7 @@ import json
 import subprocess
 import argparse
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 
 def get_project_root() -> Path:
@@ -615,6 +618,428 @@ class RemediationCenter:
             print("❌ 通知重试失败")
         return success
 
+    # ==================== Auto Execute ====================
+
+    def _load_guard_state(self) -> Dict:
+        """加载熔断状态"""
+        guard_path = self.remediation_dir / "remediation_guard.json"
+        return load_json(guard_path) or {"guards": {}}
+
+    def _save_guard_state(self, state: Dict):
+        """保存熔断状态"""
+        guard_path = self.remediation_dir / "remediation_guard.json"
+        save_json(guard_path, state)
+
+    def _load_auto_execute_policy(self) -> Dict:
+        """加载自动执行策略"""
+        policy_path = self.root / "infrastructure" / "remediation" / "auto_execute_policy.json"
+        return load_json(policy_path) or {"profiles": {}, "default_profile": "manual_only"}
+
+    def _check_cooldown(self, action: str) -> tuple:
+        """检查冷却期"""
+        policy = self._load_auto_execute_policy()
+        cooldown_minutes = policy.get("cooldown", {}).get("action_specific", {}).get(action, 5)
+
+        guard_state = self._load_guard_state()
+        guard = guard_state.get("guards", {}).get(action, {})
+
+        last_attempt = guard.get("last_attempt_at")
+        if last_attempt:
+            last_time = datetime.fromisoformat(last_attempt)
+            if datetime.now() - last_time < timedelta(minutes=cooldown_minutes):
+                remaining = cooldown_minutes - (datetime.now() - last_time).seconds // 60
+                return True, f"冷却中，剩余 {remaining} 分钟"
+
+        return False, None
+
+    def _check_circuit_breaker(self, action: str) -> tuple:
+        """检查熔断器"""
+        guard_state = self._load_guard_state()
+        guard = guard_state.get("guards", {}).get(action, {})
+
+        if guard.get("circuit_open"):
+            opened_at = guard.get("circuit_opened_at")
+            policy = self._load_auto_execute_policy()
+            reset_minutes = policy.get("circuit_breaker", {}).get("actions", {}).get(action, {}).get("reset_minutes", 30)
+
+            if opened_at:
+                opened_time = datetime.fromisoformat(opened_at)
+                if datetime.now() - opened_time < timedelta(minutes=reset_minutes):
+                    return True, guard.get("circuit_reason", "熔断器开启")
+                else:
+                    # 重置熔断器
+                    guard["circuit_open"] = False
+                    guard["circuit_reason"] = None
+                    guard_state["guards"][action] = guard
+                    self._save_guard_state(guard_state)
+
+        return False, None
+
+    def _check_retry_limit(self, action: str) -> tuple:
+        """检查重试上限"""
+        policy = self._load_auto_execute_policy()
+        max_retry = policy.get("retry", {}).get("max_retry_count", 3)
+
+        guard_state = self._load_guard_state()
+        guard = guard_state.get("guards", {}).get(action, {})
+
+        if guard.get("retry_count", 0) >= max_retry:
+            return True, f"已达到重试上限 ({max_retry})"
+
+        return False, None
+
+    def _check_prerequisites(self, profile: str) -> Dict:
+        """检查前置条件"""
+        policy = self._load_auto_execute_policy()
+        profile_config = policy.get("profiles", {}).get(profile, {})
+        prereqs = profile_config.get("prerequisites", {})
+
+        results = {"passed": True, "failures": []}
+
+        if not prereqs:
+            return results
+
+        # 检查 blocking alerts
+        if prereqs.get("no_blocking_alerts"):
+            alerts = load_json(self.reports_dir / "alerts" / "latest_alerts.json")
+            if alerts and alerts.get("blocking_count", 0) > 0:
+                results["passed"] = False
+                results["failures"].append(f"存在 {alerts['blocking_count']} 个阻塞告警")
+
+        # 检查 strong regressions
+        if prereqs.get("no_strong_regressions"):
+            alerts = load_json(self.reports_dir / "alerts" / "latest_alerts.json")
+            if alerts and alerts.get("strong_regressions"):
+                results["passed"] = False
+                results["failures"].append("存在强回归")
+
+        # 检查 release blocked
+        if prereqs.get("no_release_blocked"):
+            release = load_json(self.reports_dir / "release_gate.json")
+            if release and not release.get("can_release", True):
+                results["passed"] = False
+                results["failures"].append("Release 被阻塞")
+
+        # 检查 P0
+        if prereqs.get("p0_must_be_zero"):
+            runtime = load_json(self.reports_dir / "runtime_integrity.json")
+            if runtime and runtime.get("p0_count", 0) > 0:
+                results["passed"] = False
+                results["failures"].append(f"P0 数量为 {runtime['p0_count']}")
+
+        return results
+
+    def _update_guard_after_execute(self, action: str, success: bool, error: str = None):
+        """执行后更新熔断状态"""
+        guard_state = self._load_guard_state()
+        if "guards" not in guard_state:
+            guard_state["guards"] = {}
+
+        guard = guard_state["guards"].get(action, {
+            "action_type": action,
+            "retry_count": 0,
+            "circuit_open": False
+        })
+
+        guard["last_attempt_at"] = datetime.now().isoformat()
+
+        if success:
+            guard["last_success_at"] = datetime.now().isoformat()
+            guard["retry_count"] = 0
+        else:
+            guard["retry_count"] = guard.get("retry_count", 0) + 1
+            guard["last_error"] = error
+
+            # 检查是否需要熔断
+            policy = self._load_auto_execute_policy()
+            threshold = policy.get("circuit_breaker", {}).get("actions", {}).get(action, {}).get("failure_threshold", 3)
+
+            if guard["retry_count"] >= threshold:
+                guard["circuit_open"] = True
+                guard["circuit_reason"] = f"连续失败 {guard['retry_count']} 次"
+                guard["circuit_opened_at"] = datetime.now().isoformat()
+
+        guard_state["guards"][action] = guard
+        self._save_guard_state(guard_state)
+
+    def _save_auto_execute_audit(self, audit: Dict):
+        """保存自动执行审计"""
+        # 保存到 latest
+        audit_path = self.remediation_dir / "auto_execute_audit.json"
+        save_json(audit_path, audit)
+
+        # 保存到 history
+        self.history_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        history_path = self.history_dir / f"{timestamp}_auto_execute.json"
+        save_json(history_path, audit)
+
+    def cmd_auto_execute(self, profile: str, workflow: str = "manual") -> Dict:
+        """受控自动执行"""
+        print(f"╔══════════════════════════════════════════════════╗")
+        print(f"║  Auto-Execute (profile: {profile:<22}) ║")
+        print(f"╚══════════════════════════════════════════════════╝")
+        print()
+
+        # 检查是否开启
+        policy = self._load_auto_execute_policy()
+        profile_config = policy.get("profiles", {}).get(profile, {})
+
+        if profile_config.get("require_explicit_enable"):
+            env_var = profile_config.get("enable_env_var", "ENABLE_SAFE_REMEDIATION")
+            enabled = os.environ.get(env_var, "false").lower() == "true"
+            if not enabled:
+                print(f"❌ 自动执行未开启 (需设置 {env_var}=true)")
+                audit = {
+                    "workflow": workflow,
+                    "profile": profile,
+                    "auto_execute_enabled": False,
+                    "action_considered": [],
+                    "action_executed": [],
+                    "action_denied": [],
+                    "deny_reasons": {"all": f"{env_var} 未设置"},
+                    "preflight_result": "disabled",
+                    "cooldown_hit": False,
+                    "circuit_open": False,
+                    "timestamp": datetime.now().isoformat()
+                }
+                self._save_auto_execute_audit(audit)
+                return audit
+
+        print(f"✅ 自动执行已开启")
+        print()
+
+        # 获取 plan
+        plan = self._get_plan_internal()
+        pending_actions = [a["action"] for a in plan.get("safe_auto_actions", [])]
+
+        if not pending_actions:
+            print("无待处理的 safe_auto 动作")
+            audit = {
+                "workflow": workflow,
+                "profile": profile,
+                "auto_execute_enabled": True,
+                "action_considered": [],
+                "action_executed": [],
+                "action_denied": [],
+                "deny_reasons": {},
+                "preflight_result": "no_actions",
+                "cooldown_hit": False,
+                "circuit_open": False,
+                "timestamp": datetime.now().isoformat()
+            }
+            self._save_auto_execute_audit(audit)
+            return audit
+
+        print(f"【待处理动作】")
+        for a in pending_actions:
+            print(f"  • {a}")
+        print()
+
+        # 检查前置条件
+        prereq_result = self._check_prerequisites(profile)
+        if not prereq_result["passed"]:
+            print(f"❌ 前置条件不满足:")
+            for f in prereq_result["failures"]:
+                print(f"  • {f}")
+            audit = {
+                "workflow": workflow,
+                "profile": profile,
+                "auto_execute_enabled": True,
+                "action_considered": pending_actions,
+                "action_executed": [],
+                "action_denied": pending_actions,
+                "deny_reasons": {a: "; ".join(prereq_result["failures"]) for a in pending_actions},
+                "preflight_result": "failed",
+                "preflight_failures": prereq_result["failures"],
+                "cooldown_hit": False,
+                "circuit_open": False,
+                "timestamp": datetime.now().isoformat()
+            }
+            self._save_auto_execute_audit(audit)
+            return audit
+
+        print(f"✅ 前置条件检查通过")
+        print()
+
+        # 逐个检查和执行
+        executed = []
+        denied = []
+        deny_reasons = {}
+
+        allowed_actions = profile_config.get("allowed_actions", [])
+
+        for action in pending_actions:
+            # 检查是否允许
+            if action not in allowed_actions:
+                denied.append(action)
+                deny_reasons[action] = "不在允许列表中"
+                continue
+
+            # 检查冷却
+            in_cooldown, cooldown_reason = self._check_cooldown(action)
+            if in_cooldown:
+                denied.append(action)
+                deny_reasons[action] = cooldown_reason
+                continue
+
+            # 检查熔断
+            circuit_open, circuit_reason = self._check_circuit_breaker(action)
+            if circuit_open:
+                denied.append(action)
+                deny_reasons[action] = circuit_reason
+                continue
+
+            # 检查重试上限
+            over_limit, limit_reason = self._check_retry_limit(action)
+            if over_limit:
+                denied.append(action)
+                deny_reasons[action] = limit_reason
+                continue
+
+            # 执行
+            print(f"【执行】{action}")
+            result = self.cmd_execute(action)
+            if result.get("success"):
+                executed.append(action)
+                self._update_guard_after_execute(action, True)
+            else:
+                denied.append(action)
+                deny_reasons[action] = result.get("error", "执行失败")
+                self._update_guard_after_execute(action, False, result.get("error"))
+
+        # 保存审计
+        audit = {
+            "workflow": workflow,
+            "profile": profile,
+            "auto_execute_enabled": True,
+            "action_considered": pending_actions,
+            "action_executed": executed,
+            "action_denied": denied,
+            "deny_reasons": deny_reasons,
+            "preflight_result": "passed",
+            "cooldown_hit": len([r for r in deny_reasons.values() if "冷却" in r]) > 0,
+            "circuit_open": len([r for r in deny_reasons.values() if "熔断" in r]) > 0,
+            "timestamp": datetime.now().isoformat()
+        }
+        self._save_auto_execute_audit(audit)
+
+        print()
+        print(f"【执行结果】")
+        print(f"  执行: {executed if executed else '无'}")
+        print(f"  拒绝: {denied if denied else '无'}")
+        if deny_reasons:
+            print(f"  拒绝原因:")
+            for a, r in deny_reasons.items():
+                print(f"    • {a}: {r}")
+
+        return audit
+
+    def _get_plan_internal(self) -> Dict:
+        """内部方法：获取 plan"""
+        plan = {
+            "generated_at": datetime.now().isoformat(),
+            "safe_auto_actions": [],
+            "suggest_only_issues": []
+        }
+
+        checks = [
+            self._check_dashboard_status(),
+            self._check_ops_state_status(),
+            self._check_bundle_status(),
+            self._check_notification_status()
+        ]
+
+        for check in checks:
+            if check.get("action"):
+                plan["safe_auto_actions"].append({
+                    "action": check["action"],
+                    "reason": check["reason"],
+                    "status": check["status"]
+                })
+
+        return plan
+
+    def cmd_guard(self, reset: str = None):
+        """查看熔断状态"""
+        print("╔══════════════════════════════════════════════════╗")
+        print("║              熔断状态                           ║")
+        print("╚══════════════════════════════════════════════════╝")
+        print()
+
+        guard_state = self._load_guard_state()
+
+        if reset:
+            # 重置熔断器
+            if reset in guard_state.get("guards", {}):
+                guard_state["guards"][reset]["circuit_open"] = False
+                guard_state["guards"][reset]["circuit_reason"] = None
+                guard_state["guards"][reset]["retry_count"] = 0
+                self._save_guard_state(guard_state)
+                print(f"✅ 已重置 {reset} 的熔断器")
+                print()
+            else:
+                print(f"❌ 未找到 {reset} 的熔断记录")
+                print()
+
+        guards = guard_state.get("guards", {})
+        if not guards:
+            print("无熔断记录")
+            return
+
+        for action, guard in guards.items():
+            status = "🔴 熔断" if guard.get("circuit_open") else "🟢 正常"
+            print(f"{status} {action}")
+            print(f"   重试次数: {guard.get('retry_count', 0)}")
+            print(f"   最后尝试: {guard.get('last_attempt_at', 'N/A')[:19]}")
+            if guard.get("circuit_open"):
+                print(f"   熔断原因: {guard.get('circuit_reason', 'N/A')}")
+                print(f"   熔断时间: {guard.get('circuit_opened_at', 'N/A')[:19]}")
+            print()
+
+    def cmd_audit(self, last: int = 10, denied: bool = False, workflow: str = None):
+        """查看审计记录"""
+        print("╔══════════════════════════════════════════════════╗")
+        print("║              自动执行审计                       ║")
+        print("╚══════════════════════════════════════════════════╝")
+        print()
+
+        # 查找 auto_execute 审计文件
+        audit_files = sorted(self.history_dir.glob("*_auto_execute.json"), reverse=True)[:last * 2]
+
+        records = []
+        for f in audit_files:
+            record = load_json(f)
+            if record:
+                if workflow and record.get("workflow") != workflow:
+                    continue
+                if denied and not record.get("action_denied"):
+                    continue
+                records.append(record)
+
+        records = records[:last]
+
+        if not records:
+            print("无审计记录")
+            return
+
+        for record in records:
+            enabled = "✅" if record.get("auto_execute_enabled") else "❌"
+            profile = record.get("profile", "?")
+            wf = record.get("workflow", "?")
+            executed = record.get("action_executed", [])
+            denied_actions = record.get("action_denied", [])
+
+            print(f"{enabled} [{profile}] {wf}")
+            print(f"   执行: {executed if executed else '无'}")
+            if denied_actions:
+                print(f"   拒绝: {denied_actions}")
+                for a, r in record.get("deny_reasons", {}).items():
+                    if a in denied_actions:
+                        print(f"     • {a}: {r}")
+            print(f"   时间: {record.get('timestamp', '?')[:19]}")
+            print()
+
 def main():
     parser = argparse.ArgumentParser(description="处置中心")
     subparsers = parser.add_subparsers(dest="command", help="命令")
@@ -631,11 +1056,26 @@ def main():
     execute_parser.add_argument("action", help="动作名称")
     execute_parser.add_argument("--approve", action="store_true", help="批准执行 semi_auto 动作")
 
+    # auto-execute
+    auto_exec_parser = subparsers.add_parser("auto-execute", help="受控自动执行")
+    auto_exec_parser.add_argument("--profile", default="nightly_auto", help="执行策略 (nightly_auto/release_auto/manual_only)")
+    auto_exec_parser.add_argument("--workflow", default="manual", help="来源 workflow")
+
     # history
     history_parser = subparsers.add_parser("history", help="查看历史")
     history_parser.add_argument("--last", type=int, default=10, help="最近 N 条")
     history_parser.add_argument("--type", help="过滤动作类型")
     history_parser.add_argument("--failed", action="store_true", help="只显示失败的")
+
+    # guard
+    guard_parser = subparsers.add_parser("guard", help="查看熔断状态")
+    guard_parser.add_argument("--reset", help="重置指定动作的熔断器")
+
+    # audit
+    audit_parser = subparsers.add_parser("audit", help="查看自动执行审计")
+    audit_parser.add_argument("--last", type=int, default=10, help="最近 N 条")
+    audit_parser.add_argument("--denied", action="store_true", help="只显示被拒绝的")
+    audit_parser.add_argument("--workflow", help="过滤 workflow")
 
     # internal
     subparsers.add_parser("_retry_notifications", help="内部命令：重试通知")
@@ -655,8 +1095,14 @@ def main():
         rc.cmd_dry_run(args.action)
     elif args.command == "execute":
         rc.cmd_execute(args.action, args.approve)
+    elif args.command == "auto-execute":
+        rc.cmd_auto_execute(args.profile, args.workflow)
     elif args.command == "history":
         rc.cmd_history(args.last, args.type, args.failed)
+    elif args.command == "guard":
+        rc.cmd_guard(args.reset)
+    elif args.command == "audit":
+        rc.cmd_audit(args.last, args.denied, args.workflow)
     elif args.command == "_retry_notifications":
         rc.cmd_internal_retry_notifications()
 

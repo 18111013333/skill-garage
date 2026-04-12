@@ -75,9 +75,19 @@ s = json.load(open('reports/remediation/remediation_summary.json'))
 print(f'- Pending actions: {s.get(\"pending_safe_actions\", [])}')
 print(f'- Latest execute: {s.get(\"latest_action_type\", \"none\")}')
 print(f'- Latest success: {s.get(\"latest_action_success\", \"N/A\")}')
-print(f'- Auto execute enabled: False (default)')
 " >> $GITHUB_STEP_SUMMARY 2>/dev/null || true
         fi
+    
+    - name: Auto Execute Remediation
+      if: ${{ env.ENABLE_SAFE_REMEDIATION == 'true' }}
+      env:
+        ENABLE_SAFE_REMEDIATION: ${{ vars.ENABLE_SAFE_REMEDIATION || 'false' }}
+      run: |
+        echo "## 🤖 Auto Execute Remediation" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Auto execute enabled: true" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        python scripts/remediation_center.py auto-execute --profile nightly_auto --workflow nightly >> $GITHUB_STEP_SUMMARY 2>&1 || true
     
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
