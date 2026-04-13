@@ -1,0 +1,24 @@
+# 忽略大文件
+*.mp3
+*.mp4
+*.wav
+*.avi
+*.mov
+
+# 忽略生成的内容
+generated-images/
+generated-videos/
+logs/
+__pycache__/
+*.pyc
+.cache/
+
+# 忽略敏感信息
+.env
+*.key
+*.pem
+
+# 忽略临时文件
+*.tmp
+*.temp
+*.log

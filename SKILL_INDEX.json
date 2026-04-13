@@ -1,0 +1,221 @@
+{
+  "version": "4.0.0",
+  "description": "终极鸽子王技能索引 - V3.0.0 (ClawHub全技能融合版)",
+  "updated": "2026-04-11",
+  "architecture_version": "3.0.0",
+  
+  "categories": {
+    "xiaoyi_core": {
+      "description": "小艺核心技能",
+      "layer": "L4",
+      "skills": ["xiaoyi-web-search", "xiaoyi-image-search", "xiaoyi-image-understanding", "xiaoyi-doc-convert", "xiaoyi-file-upload"],
+      "priority": 1
+    },
+    "xiaoyi_creation": {
+      "description": "小艺创作技能",
+      "layer": "L4", 
+      "skills": ["xiaoyi-ppt", "xiaoyi-xlsx", "xiaoyi-report"],
+      "priority": 1
+    },
+    "xiaoyi_device": {
+      "description": "小艺设备技能",
+      "layer": "L4",
+      "skills": ["xiao-gui-agent", "xiaoyi-health"],
+      "priority": 1
+    },
+    "document": {
+      "description": "文档处理技能",
+      "layer": "L4",
+      "skills": ["pdf", "docx", "pptx", "markitdown", "xiaoyi-doc-convert"],
+      "priority": 2
+    },
+    "image": {
+      "description": "图像创作技能",
+      "layer": "L4",
+      "skills": ["seedream-image_gen", "claw-art", "meitu-skills", "opengfx-logo", "visual-creative", "canvas-design", "excalidraw-diagram", "flowchart-generator-skill", "pptx-posters", "scientific-slides", "slidev"],
+      "priority": 2
+    },
+    "video": {
+      "description": "视频创作技能",
+      "layer": "L4",
+      "skills": ["seedance-video-gen", "remotion-video-toolkit", "video-frames", "video-script-creator", "educational-video-creator", "movie-producer-scene"],
+      "priority": 3
+    },
+    "content_creation": {
+      "description": "内容创作技能",
+      "layer": "L4",
+      "skills": ["article-writing", "copywriter", "article-writer", "nini-writing-inspiration", "general-writing", "news-writing", "kids-book-writer", "lyrical-fable", "ai-drama-prompt-factory"],
+      "priority": 3
+    },
+    "search_research": {
+      "description": "搜索研究技能",
+      "layer": "L4",
+      "skills": ["xiaoyi-web-search", "xiaoyi-image-search", "agent-reach", "arxiv-search", "read-arxiv-paper", "deep-search-and-insight-synthesize", "deep-research", "web-content-fetcher", "multi-search-engine", "news-extractor", "daily-hot-news", "alphaear-news", "paper-daily"],
+      "priority": 2
+    },
+    "data_analysis": {
+      "description": "数据分析技能",
+      "layer": "L4",
+      "skills": ["excel-analysis", "xiaoyi-xlsx"],
+      "priority": 2
+    },
+    "developer_tools": {
+      "description": "开发工具技能",
+      "layer": "L4",
+      "skills": ["react-best-practices", "webapp-testing", "skill-creator", "openclaw-skills-agent-builder-1.0.3", "openclaw-skills-soulcraft", "find-skills", "ab-test-setup", "web-design-guidelines", "html-ux-guidance", "gesture-html", "frontend-ui-ux-engineer", "frontend-design", "calcom-cal.com-web-design-guidelines-1.0.2"],
+      "priority": 3
+    },
+    "lifestyle": {
+      "description": "生活服务技能",
+      "layer": "L4",
+      "skills": ["weather", "fitness-coach", "fasting-tracker", "natural-language-planner", "didi-ride-skill", "meituan-coupon-get-tool", "flyai"],
+      "priority": 4
+    },
+    "communication": {
+      "description": "通信技能",
+      "layer": "L4",
+      "skills": ["imap-smtp-email", "weixin-clawbot-setup", "weibo-clawbot-setup", "qq-clawbot-setup", "wecom-bot-setup", "feishu-channel-setup"],
+      "priority": 4
+    },
+    "finance": {
+      "description": "金融财经技能",
+      "layer": "L4",
+      "skills": ["alphaear-predictor", "alphaear-sentiment", "alphaear-signal-tracker", "mx-skills-suite", "jdjr"],
+      "priority": 3
+    },
+    "marketing": {
+      "description": "营销策划技能",
+      "layer": "L4",
+      "skills": ["marketing-ideas", "brainstorming", "creative-thought-partner", "product-manager", "prd", "prd-writer", "write-a-prd", "prd-doc-writer", "user-research", "plan-ceo-review"],
+      "priority": 3
+    },
+    "assistant": {
+      "description": "智能助手技能",
+      "layer": "L4",
+      "skills": ["Assistant", "proactive-agent", "proactive-tasks", "autonomous-tasks", "surprise-me"],
+      "priority": 1
+    },
+    "text_processing": {
+      "description": "文本处理技能",
+      "layer": "L4",
+      "skills": ["humanizer-zh", "humanizer-cn", "writing-style-iterator", "content-compliance", "tc-chengxin"],
+      "priority": 3
+    },
+    "voice": {
+      "description": "语音技能",
+      "layer": "L4",
+      "skills": ["tts"],
+      "priority": 4
+    },
+    "storage": {
+      "description": "存储技能",
+      "layer": "L6",
+      "skills": ["huawei-drive", "bdpan-storage"],
+      "priority": 4
+    },
+    "governance": {
+      "description": "治理安全技能",
+      "layer": "L5",
+      "skills": ["execution-validator-skill", "secret-guardian", "skill-scope", "healthcheck"],
+      "priority": 1
+    },
+    "infrastructure": {
+      "description": "基础设施技能",
+      "layer": "L6",
+      "skills": ["node-connect", "vercel-deploy", "ship-learn-next"],
+      "priority": 4
+    },
+    "memory": {
+      "description": "记忆系统技能",
+      "layer": "L2",
+      "skills": ["yaoyao-memory-v2", "llm-memory-integration-v3", "brain", "self-improving-agent"],
+      "priority": 1
+    },
+    "other": {
+      "description": "其他技能",
+      "layer": "L4",
+      "skills": ["ontology", "personas", "mbti-for-agents", "best-minds", "yanxue-course-manager", "good-txt-to-hwreader", "openmaic", "daily-tech-broadcast", "brainhole-factory"],
+      "priority": 5
+    },
+    "metaphysics": {
+      "description": "玄学技能",
+      "layer": "L4",
+      "skills": ["八字算命", "紫微斗数", "面相学", "风水学", "择日学", "姓名学", "天文学"],
+      "priority": 3
+    }
+  },
+  
+  "routing_rules": {
+    "keyword_mapping": {
+      "搜索|查找|查询|联网|全网搜索": "search_research",
+      "图片|图像|截图|生成图|海报|Logo": "image",
+      "视频|生成视频|视频脚本": "video",
+      "文档|PDF|Word|PPT|Excel|转换": "document",
+      "数据|分析|表格": "data_analysis",
+      "写|创作|文章|文案|灵感|故事": "content_creation",
+      "天气|健身|计划|出行|旅游": "lifestyle",
+      "代码|React|前端|测试|开发": "developer_tools",
+      "邮件|微信|微博|QQ|飞书": "communication",
+      "手机|APP|操作手机": "xiaoyi_device",
+      "PPT|幻灯片|演示": "xiaoyi_creation",
+      "报告|报表": "xiaoyi_creation",
+      "金融|股票|预测": "finance",
+      "营销|策划|PRD|产品": "marketing",
+      "语音|配音|朗读": "voice",
+      "存储|网盘|云盘": "storage",
+      "算命|八字|紫微|面相|风水|择日|姓名|运势": "metaphysics"
+    },
+    "fallback_order": ["xiaoyi_core", "search_research", "content_creation", "document"]
+  },
+  
+  "layer_mapping": {
+    "L1_core": ["IDENTITY.md", "SOUL.md", "USER.md", "AGENTS.md"],
+    "L2_memory": ["MEMORY.md", "memory/*.md", "yaoyao-memory-v2", "llm-memory-integration-v3", "brain", "self-improving-agent"],
+    "L3_orchestration": ["SKILL_INDEX.json", "routing_rules", "fast_path.py", "predictive_cache.py"],
+    "L4_execution": ["xiaoyi_core", "xiaoyi_creation", "xiaoyi_device", "document", "image", "video", "content_creation", "search_research", "data_analysis", "developer_tools", "lifestyle", "communication", "finance", "marketing", "assistant", "text_processing", "voice", "metaphysics", "other"],
+    "L5_governance": ["execution-validator-skill", "secret-guardian", "skill-scope", "healthcheck", "governance.py", "audit.py"],
+    "L6_infrastructure": ["huawei-drive", "bdpan-storage", "node-connect", "vercel-deploy", "ship-learn-next", "cron", "infrastructure.py", "backup_manager.py"]
+  },
+  
+  "memory_system": {
+    "name": "yaoyao-memory-v2 + llm-memory-integration-v3 + brain",
+    "version": "3.9.5 + 3.0.0 + 1.0.0",
+    "description": "六层架构记忆系统，四层渐进式记忆 + 向量搜索 + 个人知识库",
+    "features": [
+      "静默自动记录",
+      "向量搜索 (ChromaDB + SQLite vec0)",
+      "智能分类 (7种类型)",
+      "自修复系统",
+      "Feature Flag (30个开关)",
+      "PTL防御截断",
+      "Embedding缓存",
+      "安全扩展加载",
+      "个人知识库 (brain)"
+    ],
+    "modules": {
+      "yaoyao-memory-v2": {
+        "path": "skills/yaoyao-memory-v2/",
+        "scripts": "scripts/",
+        "features": ["四层渐进式记忆", "Feature Flag", "自修复"]
+      },
+      "llm-memory-integration-v3": {
+        "path": "skills/llm-memory-integration-v3/",
+        "core": "core/",
+        "features": ["向量搜索", "SQLite vec0", "PTL防御"]
+      },
+      "brain": {
+        "path": "skills/brain/",
+        "features": ["个人知识库", "实体记忆"]
+      }
+    }
+  },
+  
+  "statistics": {
+    "total_skills": 188,
+    "ready_skills": 137,
+    "needs_setup": 51,
+    "categories": 23,
+    "layers": 6,
+    "last_updated": "2026-04-11"
+  }
+}

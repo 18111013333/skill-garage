@@ -1,0 +1,7 @@
+file '/home/sandbox/.openclaw/workspace/memory/shiyuantang_photos_new/配镜设备_全自动磨边机ALE903.jpg'
+duration 5.0
+file '/home/sandbox/.openclaw/workspace/memory/shiyuantang_photos_new/配镜设备_配镜工作台.jpg'
+duration 5.0
+file '/home/sandbox/.openclaw/workspace/memory/shiyuantang_photos_new/配镜设备_镜片中心仪.jpg'
+duration 5.0
+file '/home/sandbox/.openclaw/workspace/memory/shiyuantang_photos_new/配镜设备_镜片中心仪.jpg'
