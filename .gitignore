@@ -1,24 +1,43 @@
-# 忽略大文件
-*.mp3
-*.mp4
-*.wav
-*.avi
-*.mov
-
-# 忽略生成的内容
-generated-images/
-generated-videos/
-logs/
+# Python
 __pycache__/
-*.pyc
-.cache/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
 
-# 忽略敏感信息
-.env
-*.key
-*.pem
+# Node
+node_modules/
+npm-debug.log
 
-# 忽略临时文件
-*.tmp
-*.temp
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
 *.log
+logs/
+
+# Temp
+tmp/
+temp/
+*.tmp
+
+# Large files
+repo/
+*.tar.gz
+*.zip
+
+# Secrets
+.env
+*.env
+*.bak
+secrets/

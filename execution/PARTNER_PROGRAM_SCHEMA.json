@@ -1,0 +1,183 @@
+{
+  "schema": "partner_program",
+  "version": "1.0.0",
+  "description": "代理商/服务商计划结构定义",
+  "programs": [
+    {
+      "program_id": "PROG-001",
+      "program_name": "注册级伙伴",
+      "partner_tier": "registered",
+      "eligibility": {
+        "company_registration": true,
+        "basic_training": true,
+        "agreement_signed": true
+      },
+      "allowed_services": [
+        "销售推荐",
+        "基础咨询"
+      ],
+      "sales_rights": [
+        "推荐",
+        "协助"
+      ],
+      "implementation_rights": [],
+      "support_rights": [
+        "基础问题转达"
+      ],
+      "certification_requirements": [],
+      "revenue_share_model": {
+        "first_order": 0.1,
+        "renewal": 0.05,
+        "services": 0
+      },
+      "status": "active"
+    },
+    {
+      "program_id": "PROG-002",
+      "program_name": "认证级伙伴",
+      "partner_tier": "certified",
+      "eligibility": {
+        "company_registration": true,
+        "basic_training": true,
+        "advanced_training": true,
+        "certification_exam": true,
+        "agreement_signed": true
+      },
+      "allowed_services": [
+        "销售",
+        "基础实施",
+        "一线支持"
+      ],
+      "sales_rights": [
+        "独立销售",
+        "报价"
+      ],
+      "implementation_rights": [
+        "标准实施"
+      ],
+      "support_rights": [
+        "一线支持",
+        "问题处理"
+      ],
+      "certification_requirements": [
+        "基础认证",
+        "实施认证"
+      ],
+      "revenue_share_model": {
+        "first_order": 0.2,
+        "renewal": 0.1,
+        "services": 0.3
+      },
+      "status": "active"
+    },
+    {
+      "program_id": "PROG-003",
+      "program_name": "高级伙伴",
+      "partner_tier": "advanced",
+      "eligibility": {
+        "company_registration": true,
+        "all_training": true,
+        "certification_exam": true,
+        "case_experience": 3,
+        "agreement_signed": true
+      },
+      "allowed_services": [
+        "销售",
+        "完整实施",
+        "高级支持",
+        "定制开发"
+      ],
+      "sales_rights": [
+        "独立销售",
+        "报价",
+        "折扣审批"
+      ],
+      "implementation_rights": [
+        "标准实施",
+        "定制实施"
+      ],
+      "support_rights": [
+        "全级别支持",
+        "现场支持"
+      ],
+      "certification_requirements": [
+        "基础认证",
+        "实施认证",
+        "高级认证"
+      ],
+      "revenue_share_model": {
+        "first_order": 0.3,
+        "renewal": 0.15,
+        "services": 0.4
+      },
+      "status": "active"
+    },
+    {
+      "program_id": "PROG-004",
+      "program_name": "战略伙伴",
+      "partner_tier": "strategic",
+      "eligibility": {
+        "company_registration": true,
+        "all_training": true,
+        "certification_exam": true,
+        "case_experience": 10,
+        "revenue_target": true,
+        "agreement_signed": true
+      },
+      "allowed_services": [
+        "全权销售",
+        "全权实施",
+        "全权支持",
+        "联合研发"
+      ],
+      "sales_rights": [
+        "全权销售",
+        "定价权",
+        "渠道管理"
+      ],
+      "implementation_rights": [
+        "全权实施",
+        "质量审核"
+      ],
+      "support_rights": [
+        "全权支持",
+        "SLA管理"
+      ],
+      "certification_requirements": [
+        "全部认证",
+        "战略认证"
+      ],
+      "revenue_share_model": {
+        "first_order": 0.4,
+        "renewal": 0.2,
+        "services": 0.5
+      },
+      "status": "active"
+    }
+  ],
+  "tier_upgrade_rules": {
+    "registered_to_certified": {
+      "requirements": [
+        "完成认证考试",
+        "至少1个成功案例"
+      ],
+      "approval": "渠道经理审批"
+    },
+    "certified_to_advanced": {
+      "requirements": [
+        "完成高级认证",
+        "至少3个成功案例",
+        "年度业绩达标"
+      ],
+      "approval": "渠道总监审批"
+    },
+    "advanced_to_strategic": {
+      "requirements": [
+        "完成战略认证",
+        "至少10个成功案例",
+        "年度业绩超标"
+      ],
+      "approval": "VP审批"
+    }
+  }
+}

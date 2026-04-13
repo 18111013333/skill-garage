@@ -1,0 +1,47 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-04-12T22:34:56.909618",
+  "source": "skill_registry.json",
+  "skills": [
+    "docx",
+    "file-manager",
+    "cron",
+    "pdf"
+  ],
+  "by_trigger": {
+    "docx": [
+      "docx"
+    ],
+    "file-manager": [
+      "file-manager"
+    ],
+    "cron": [
+      "cron"
+    ],
+    "pdf": [
+      "pdf"
+    ]
+  },
+  "skill_details": {
+    "docx": {
+      "entry_point": "skills/docx/skill.py",
+      "test_mode": "local",
+      "smoke_test": true
+    },
+    "file-manager": {
+      "entry_point": "skills/file-manager/skill.py",
+      "test_mode": "integration",
+      "smoke_test": false
+    },
+    "cron": {
+      "entry_point": "skills/cron/skill.py",
+      "test_mode": "local",
+      "smoke_test": true
+    },
+    "pdf": {
+      "entry_point": "skills/pdf/skill.py",
+      "test_mode": "local",
+      "smoke_test": true
+    }
+  }
+}

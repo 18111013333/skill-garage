@@ -1,0 +1,7 @@
+{
+  "name": "llm-memory-integration",
+  "version": "3.0.0",
+  "description": "向量搜索记忆系统",
+  "author": "xkzs2007",
+  "license": "MIT"
+}

@@ -1,0 +1,230 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "API_SURFACE_CATALOG",
+  "description": "对外 API 能力目录",
+  "version": "1.0.0",
+  "updated_at": "2026-04-07T12:00:00+08:00",
+
+  "catalog_info": {
+    "total_apis": 45,
+    "api_groups": 8,
+    "public_apis": 32,
+    "internal_apis": 13
+  },
+
+  "api_groups": [
+    {
+      "group_id": "core",
+      "group_name": "核心能力 API",
+      "description": "平台核心能力接口",
+      "apis_count": 12
+    },
+    {
+      "group_id": "memory",
+      "group_name": "记忆管理 API",
+      "description": "记忆存储与检索接口",
+      "apis_count": 8
+    },
+    {
+      "group_id": "skills",
+      "group_name": "技能管理 API",
+      "description": "技能安装配置接口",
+      "apis_count": 6
+    },
+    {
+      "group_id": "connectors",
+      "group_name": "连接器 API",
+      "description": "第三方集成接口",
+      "apis_count": 7
+    },
+    {
+      "group_id": "marketplace",
+      "group_name": "资产市场 API",
+      "description": "模板与资产分发接口",
+      "apis_count": 5
+    },
+    {
+      "group_id": "tenancy",
+      "group_name": "租户管理 API",
+      "description": "租户配置与权限接口",
+      "apis_count": 4
+    },
+    {
+      "group_id": "analytics",
+      "group_name": "分析报告 API",
+      "description": "数据分析与报表接口",
+      "apis_count": 3
+    }
+  ],
+
+  "apis": [
+    {
+      "api_id": "api.core.chat",
+      "api_name": "对话接口",
+      "api_group": "core",
+      "description": "与 AI 进行对话交互",
+      "auth_mode": ["api_key", "oauth"],
+      "tenant_scope": "all",
+      "rate_limit_tier": "standard",
+      "billing_unit": "request",
+      "stability_level": "stable",
+      "version": "v1",
+      "deprecation_status": "active",
+      "endpoints": [
+        {"method": "POST", "path": "/v1/chat/completions"},
+        {"method": "POST", "path": "/v1/chat/stream"}
+      ]
+    },
+    {
+      "api_id": "api.core.execute",
+      "api_name": "任务执行接口",
+      "api_group": "core",
+      "description": "执行复杂任务流程",
+      "auth_mode": ["api_key", "service_account"],
+      "tenant_scope": "enterprise",
+      "rate_limit_tier": "premium",
+      "billing_unit": "execution",
+      "stability_level": "stable",
+      "version": "v1",
+      "deprecation_status": "active",
+      "endpoints": [
+        {"method": "POST", "path": "/v1/execute"},
+        {"method": "GET", "path": "/v1/execute/{id}/status"}
+      ]
+    },
+    {
+      "api_id": "api.memory.search",
+      "api_name": "记忆检索接口",
+      "api_group": "memory",
+      "description": "检索存储的记忆内容",
+      "auth_mode": ["api_key"],
+      "tenant_scope": "all",
+      "rate_limit_tier": "standard",
+      "billing_unit": "request",
+      "stability_level": "stable",
+      "version": "v1",
+      "deprecation_status": "active",
+      "endpoints": [
+        {"method": "POST", "path": "/v1/memory/search"},
+        {"method": "GET", "path": "/v1/memory/{id}"}
+      ]
+    },
+    {
+      "api_id": "api.memory.store",
+      "api_name": "记忆存储接口",
+      "api_group": "memory",
+      "description": "存储新的记忆内容",
+      "auth_mode": ["api_key"],
+      "tenant_scope": "all",
+      "rate_limit_tier": "standard",
+      "billing_unit": "storage_gb",
+      "stability_level": "stable",
+      "version": "v1",
+      "deprecation_status": "active",
+      "endpoints": [
+        {"method": "POST", "path": "/v1/memory/store"},
+        {"method": "PUT", "path": "/v1/memory/{id}"}
+      ]
+    },
+    {
+      "api_id": "api.skills.install",
+      "api_name": "技能安装接口",
+      "api_group": "skills",
+      "description": "安装新技能到工作空间",
+      "auth_mode": ["api_key", "oauth"],
+      "tenant_scope": "all",
+      "rate_limit_tier": "standard",
+      "billing_unit": "installation",
+      "stability_level": "stable",
+      "version": "v1",
+      "deprecation_status": "active",
+      "endpoints": [
+        {"method": "POST", "path": "/v1/skills/install"},
+        {"method": "DELETE", "path": "/v1/skills/{id}"}
+      ]
+    },
+    {
+      "api_id": "api.connectors.configure",
+      "api_name": "连接器配置接口",
+      "api_group": "connectors",
+      "description": "配置第三方连接器",
+      "auth_mode": ["api_key", "oauth"],
+      "tenant_scope": "enterprise",
+      "rate_limit_tier": "premium",
+      "billing_unit": "connector",
+      "stability_level": "stable",
+      "version": "v1",
+      "deprecation_status": "active",
+      "endpoints": [
+        {"method": "POST", "path": "/v1/connectors/configure"},
+        {"method": "PUT", "path": "/v1/connectors/{id}/settings"}
+      ]
+    },
+    {
+      "api_id": "api.marketplace.publish",
+      "api_name": "资产发布接口",
+      "api_group": "marketplace",
+      "description": "发布模板或资产到市场",
+      "auth_mode": ["api_key", "oauth"],
+      "tenant_scope": "enterprise",
+      "rate_limit_tier": "premium",
+      "billing_unit": "publication",
+      "stability_level": "beta",
+      "version": "v1",
+      "deprecation_status": "active",
+      "endpoints": [
+        {"method": "POST", "path": "/v1/marketplace/publish"},
+        {"method": "PUT", "path": "/v1/marketplace/assets/{id}"}
+      ]
+    },
+    {
+      "api_id": "api.tenancy.manage",
+      "api_name": "租户管理接口",
+      "api_group": "tenancy",
+      "description": "管理租户配置与权限",
+      "auth_mode": ["service_account"],
+      "tenant_scope": "platform",
+      "rate_limit_tier": "admin",
+      "billing_unit": "tenant",
+      "stability_level": "stable",
+      "version": "v1",
+      "deprecation_status": "active",
+      "endpoints": [
+        {"method": "POST", "path": "/v1/tenants"},
+        {"method": "GET", "path": "/v1/tenants/{id}"},
+        {"method": "PUT", "path": "/v1/tenants/{id}/settings"}
+      ]
+    },
+    {
+      "api_id": "api.analytics.query",
+      "api_name": "分析查询接口",
+      "api_group": "analytics",
+      "description": "查询使用分析数据",
+      "auth_mode": ["api_key"],
+      "tenant_scope": "all",
+      "rate_limit_tier": "standard",
+      "billing_unit": "request",
+      "stability_level": "stable",
+      "version": "v1",
+      "deprecation_status": "active",
+      "endpoints": [
+        {"method": "POST", "path": "/v1/analytics/query"},
+        {"method": "GET", "path": "/v1/analytics/reports"}
+      ]
+    }
+  ],
+
+  "rate_limit_tiers": {
+    "free": {"requests_per_minute": 10, "requests_per_day": 100},
+    "standard": {"requests_per_minute": 60, "requests_per_day": 10000},
+    "premium": {"requests_per_minute": 300, "requests_per_day": 100000},
+    "admin": {"requests_per_minute": 1000, "requests_per_day": "unlimited"}
+  },
+
+  "stability_levels": {
+    "experimental": "实验性接口，可能随时变更",
+    "beta": "测试版接口，变更会提前通知",
+    "stable": "稳定接口，遵循版本兼容承诺",
+    "deprecated": "已废弃接口，将在过渡期后下线"
+  }
+}

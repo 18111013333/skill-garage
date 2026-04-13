@@ -1,0 +1,123 @@
+# Ontology Schema for Self-Evolution System
+
+types:
+  # Skills
+  Skill:
+    required: [name, category, priority]
+    properties:
+      name: string
+      category: string
+      priority: number
+      status: enum [active, inactive, deprecated]
+      installed_at: datetime
+      last_used: datetime
+      usage_count: number
+      dependencies: string[]
+      conflicts: string[]
+
+  # Learning System
+  Learning:
+    required: [title, category, priority]
+    properties:
+      title: string
+      category: enum [correction, best_practice, knowledge_gap, optimization]
+      priority: enum [low, medium, high, critical]
+      status: enum [pending, resolved, promoted]
+      area: string
+      details: string
+      suggested_action: string
+      source: string
+      related_files: string[]
+      tags: string[]
+      created_at: datetime
+      resolved_at: datetime
+
+  Error:
+    required: [title, error_type]
+    properties:
+      title: string
+      error_type: string
+      error_message: string
+      context: string
+      suggested_fix: string
+      resolution: string
+      status: enum [pending, resolved]
+      priority: enum [low, medium, high, critical]
+      created_at: datetime
+      resolved_at: datetime
+
+  FeatureRequest:
+    required: [title, description]
+    properties:
+      title: string
+      description: string
+      status: enum [pending, in_progress, completed, rejected]
+      priority: enum [low, medium, high]
+      requested_at: datetime
+      completed_at: datetime
+
+  # Architecture
+  WorkflowChain:
+    required: [name, entry_skill, skills]
+    properties:
+      name: string
+      description: string
+      entry_skill: string
+      skills: string[]
+      priority: number
+      status: enum [active, inactive]
+
+  Category:
+    required: [name, priority]
+    properties:
+      name: string
+      priority: number
+      skills: string[]
+      description: string
+
+  # Sessions & Tasks
+  Session:
+    required: [id, started_at]
+    properties:
+      id: string
+      started_at: datetime
+      ended_at: datetime
+      skills_used: string[]
+      learnings: string[]
+      errors: string[]
+
+relations:
+  has_skill:
+    from_types: [Category]
+    to_types: [Skill]
+    cardinality: one_to_many
+
+  depends_on:
+    from_types: [Skill]
+    to_types: [Skill]
+    cardinality: many_to_many
+
+  conflicts_with:
+    from_types: [Skill]
+    to_types: [Skill]
+    cardinality: many_to_many
+
+  has_learning:
+    from_types: [Session]
+    to_types: [Learning]
+    cardinality: one_to_many
+
+  has_error:
+    from_types: [Session]
+    to_types: [Error]
+    cardinality: one_to_many
+
+  uses_workflow:
+    from_types: [Session]
+    to_types: [WorkflowChain]
+    cardinality: many_to_many
+
+  promotes_to:
+    from_types: [Learning]
+    to_types: [Skill, Category, WorkflowChain]
+    cardinality: many_to_one

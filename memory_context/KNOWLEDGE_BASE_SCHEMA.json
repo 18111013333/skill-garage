@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Knowledge Base Schema",
+  "description": "组织知识库建模",
+  "type": "object",
+  "required": ["kb_id", "tenant_id", "collections", "owners", "status"],
+  "properties": {
+    "kb_id": {
+      "type": "string",
+      "description": "知识库唯一标识",
+      "pattern": "^kb_[a-z0-9]{12}$"
+    },
+    "tenant_id": {
+      "type": "string",
+      "description": "所属租户ID"
+    },
+    "kb_name": {
+      "type": "string",
+      "description": "知识库名称",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "kb_type": {
+      "type": "string",
+      "enum": ["faq", "sop", "project", "glossary", "policy", "general"],
+      "description": "知识库类型"
+    },
+    "collections": {
+      "type": "array",
+      "description": "知识集合",
+      "items": {
+        "type": "object",
+        "properties": {
+          "collection_id": {"type": "string"},
+          "collection_name": {"type": "string"},
+          "document_count": {"type": "integer"},
+          "last_updated": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    "owners": {
+      "type": "array",
+      "description": "知识库负责人",
+      "items": {
+        "type": "object",
+        "properties": {
+          "user_id": {"type": "string"},
+          "role": {"type": "string", "enum": ["owner", "curator", "contributor"]},
+          "added_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    "source_types": {
+      "type": "array",
+      "description": "支持的来源类型",
+      "items": {
+        "type": "string",
+        "enum": ["document", "system_sync", "manual", "meeting", "external", "api"]
+      }
+    },
+    "access_scope": {
+      "type": "string",
+      "enum": ["private", "team", "tenant", "public"],
+      "description": "访问范围"
+    },
+    "freshness_class": {
+      "type": "object",
+      "description": "新鲜度分类",
+      "properties": {
+        "class": {"type": "string", "enum": ["realtime", "daily", "weekly", "monthly", "static"]},
+        "update_frequency": {"type": "string"},
+        "stale_threshold_days": {"type": "integer"}
+      }
+    },
+    "quality_score": {
+      "type": "object",
+      "description": "质量评分",
+      "properties": {
+        "overall": {"type": "number", "minimum": 0, "maximum": 100},
+        "completeness": {"type": "number"},
+        "accuracy": {"type": "number"},
+        "freshness": {"type": "number"},
+        "coverage": {"type": "number"}
+      }
+    },
+    "indexing": {
+      "type": "object",
+      "description": "索引配置",
+      "properties": {
+        "vector_enabled": {"type": "boolean"},
+        "fulltext_enabled": {"type": "boolean"},
+        "embedding_model": {"type": "string"},
+        "chunk_size": {"type": "integer"},
+        "overlap": {"type": "integer"}
+      }
+    },
+    "retention": {
+      "type": "object",
+      "description": "保留策略",
+      "properties": {
+        "default_retention_days": {"type": "integer"},
+        "archive_after_days": {"type": "integer"},
+        "delete_after_days": {"type": "integer"}
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "archived", "maintenance", "deleted"],
+      "default": "active"
+    }
+  }
+}

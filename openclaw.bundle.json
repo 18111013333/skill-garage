@@ -1,0 +1,27 @@
+{
+  "name": "xiaoyi-claw-omega-final",
+  "version": "4.2.0",
+  "description": "六层架构智能助手 - 小艺Claw终极星空鸽子王",
+  "author": "18816132863",
+  "license": "MIT-0",
+  "targets": {
+    "openclaw": ">=1.0.0"
+  },
+  "entrypoints": {
+    "skill": "./SKILL.md"
+  },
+  "files": [
+    "**/*.md",
+    "**/*.py",
+    "**/*.json"
+  ],
+  "exclude": [
+    "node_modules/**",
+    "__pycache__/**",
+    ".git/**",
+    "repo/**",
+    "*.pdf",
+    "*.tar.gz",
+    "*.zip"
+  ]
+}

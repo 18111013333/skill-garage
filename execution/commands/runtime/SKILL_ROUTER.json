@@ -1,0 +1,129 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-04-06T12:40:00+08:00",
+  "description": "技能路由配置",
+  "routingTable": {
+    "qa": {
+      "primary": ["xiaoyi-web-search"],
+      "fallback": ["deep-search-and-insight-synthesize", "cn-web-search", "web-search-exa"],
+      "mutex": [],
+      "dependencies": [],
+      "maxToolCalls": 3,
+      "timeout": 30000
+    },
+    "search": {
+      "primary": ["xiaoyi-web-search", "web-search-exa"],
+      "fallback": ["cn-web-search", "zhipu-web-search", "baidu-search"],
+      "mutex": [],
+      "dependencies": [],
+      "maxToolCalls": 5,
+      "timeout": 30000
+    },
+    "document_edit": {
+      "primary": ["xiaoyi-doc-convert"],
+      "fallback": ["docx", "pdf", "pptx", "markitdown"],
+      "mutex": [],
+      "dependencies": ["xiaoyi-file-upload"],
+      "maxToolCalls": 10,
+      "timeout": 60000
+    },
+    "planning": {
+      "primary": ["planning-with-files"],
+      "fallback": ["productivity", "taskr"],
+      "mutex": [],
+      "dependencies": [],
+      "maxToolCalls": 15,
+      "timeout": 60000
+    },
+    "creative_generation": {
+      "primary": ["article-writer"],
+      "fallback": ["copywriter", "story-cog", "novel-generator", "poetry"],
+      "mutex": [],
+      "dependencies": [],
+      "maxToolCalls": 20,
+      "timeout": 120000
+    },
+    "tool_use": {
+      "primary": ["api-gateway"],
+      "fallback": ["mcporter", "command-center"],
+      "mutex": [],
+      "dependencies": [],
+      "maxToolCalls": 5,
+      "timeout": 30000
+    },
+    "memory_update": {
+      "primary": ["memory-setup"],
+      "fallback": ["ontology"],
+      "mutex": [],
+      "dependencies": [],
+      "maxToolCalls": 3,
+      "timeout": 10000
+    },
+    "multi_step_agent": {
+      "primary": ["self-improving-agent"],
+      "fallback": ["proactivity", "auto-skill-upgrade"],
+      "mutex": [],
+      "dependencies": ["find-skills", "skill-creator"],
+      "maxToolCalls": 30,
+      "timeout": 180000
+    },
+    "high_risk_request": {
+      "primary": [],
+      "fallback": [],
+      "mutex": ["auto_execute"],
+      "dependencies": ["moltguard"],
+      "maxToolCalls": 1,
+      "timeout": 60000,
+      "requiresApproval": true
+    }
+  },
+  "skillChains": {
+    "document_pipeline": {
+      "entry": "xiaoyi-doc-convert",
+      "sequence": ["xiaoyi-file-upload", "docx", "pdf", "pptx"],
+      "parallel": false,
+      "timeout": 60000
+    },
+    "search_pipeline": {
+      "entry": "xiaoyi-web-search",
+      "sequence": ["web-search-exa", "web-search-plus"],
+      "parallel": true,
+      "timeout": 30000
+    },
+    "image_pipeline": {
+      "entry": "xiaoyi-image-understanding",
+      "sequence": ["xiaoyi-image-search", "seedream-image_gen"],
+      "parallel": false,
+      "timeout": 60000
+    },
+    "self_evolution": {
+      "entry": "self-improving-agent",
+      "sequence": ["auto-skill-upgrade", "skill-creator", "find-skills", "ontology"],
+      "parallel": false,
+      "timeout": 180000
+    },
+    "report_pipeline": {
+      "entry": "xiaoyi-report",
+      "sequence": ["xiaoyi-web-search", "data-analysis", "article-writer"],
+      "parallel": false,
+      "timeout": 120000
+    }
+  },
+  "fallbackStrategy": {
+    "onSkillFailure": "try_next_fallback",
+    "onAllFailure": "report_error_with_suggestions",
+    "maxRetries": 2,
+    "retryDelay": 1000
+  },
+  "skillPriority": {
+    "xiaoyi": 100,
+    "core": 80,
+    "integration": 60,
+    "search": 50,
+    "document": 50,
+    "multimedia": 40,
+    "development": 30,
+    "finance": 30,
+    "utility": 20
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "skill_id": "skill_text_summary_v1",
+  "version": "1.0.0",
+  "entry_layer": "L4",
+  "timeout_ms": 5000,
+  "retry": {
+    "max_attempts": 3,
+    "backoff_ms": 1000
+  },
+  "cache": {
+    "enabled": true,
+    "ttl_seconds": 3600
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "json"
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics": ["latency", "success_rate", "error_count"]
+  },
+  "fallback": {
+    "strategy": "retry->degrade->abort",
+    "degrade_output": {
+      "summary": "摘要服务暂时不可用",
+      "algorithm": "fallback"
+    }
+  }
+}

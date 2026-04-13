@@ -1,0 +1,136 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-04-06T12:40:00+08:00",
+  "description": "任务类型分类配置",
+  "taskTypes": {
+    "qa": {
+      "name": "问答",
+      "identification": ["提问", "是什么", "为什么", "如何", "？", "吗", "呢"],
+      "defaultWorkflow": "direct_answer",
+      "recommendedSkills": ["xiaoyi-web-search", "deep-search-and-insight-synthesize"],
+      "forbiddenActions": ["file_write", "system_config_change", "tool_delete"],
+      "defaultOutputFormat": "text",
+      "maxSteps": 3,
+      "riskLevel": "low",
+      "requiresRetrieval": "optional"
+    },
+    "search": {
+      "name": "搜索",
+      "identification": ["搜索", "查找", "找一下", "查询", "搜一下"],
+      "defaultWorkflow": "search_pipeline",
+      "recommendedSkills": ["xiaoyi-web-search", "web-search-exa", "cn-web-search"],
+      "forbiddenActions": ["file_delete", "system_config_change"],
+      "defaultOutputFormat": "structured_list",
+      "maxSteps": 5,
+      "riskLevel": "low",
+      "requiresRetrieval": "required"
+    },
+    "document_edit": {
+      "name": "文档编辑",
+      "identification": ["修改", "编辑", "创建文档", "写文件", "改一下"],
+      "defaultWorkflow": "document_pipeline",
+      "recommendedSkills": ["xiaoyi-doc-convert", "docx", "pdf", "pptx"],
+      "forbiddenActions": ["system_config_change", "skill_uninstall"],
+      "defaultOutputFormat": "file_path",
+      "maxSteps": 10,
+      "riskLevel": "medium",
+      "requiresConfirmation": true,
+      "requiresRetrieval": "optional"
+    },
+    "planning": {
+      "name": "规划",
+      "identification": ["计划", "规划", "安排", "制定方案", "帮我安排"],
+      "defaultWorkflow": "planning_workflow",
+      "recommendedSkills": ["planning-with-files", "productivity", "taskr"],
+      "forbiddenActions": ["auto_execute", "batch_delete"],
+      "defaultOutputFormat": "structured_plan",
+      "maxSteps": 15,
+      "riskLevel": "medium",
+      "requiresRetrieval": "optional"
+    },
+    "creative_generation": {
+      "name": "创作生成",
+      "identification": ["写", "生成", "创作", "帮我写", "帮我生成"],
+      "defaultWorkflow": "creation_pipeline",
+      "recommendedSkills": ["article-writer", "copywriter", "story-cog", "novel-generator"],
+      "forbiddenActions": ["system_config_change", "data_delete"],
+      "defaultOutputFormat": "text",
+      "maxSteps": 20,
+      "riskLevel": "low",
+      "requiresRetrieval": "none"
+    },
+    "tool_use": {
+      "name": "工具调用",
+      "identification": ["调用", "使用工具", "执行", "运行"],
+      "defaultWorkflow": "tool_execution",
+      "recommendedSkills": ["api-gateway", "mcporter", "command-center"],
+      "forbiddenActions": ["unauthorized_access", "privilege_escalation"],
+      "defaultOutputFormat": "execution_result",
+      "maxSteps": 5,
+      "riskLevel": "medium",
+      "requiresConfirmation": true,
+      "requiresRetrieval": "none"
+    },
+    "memory_update": {
+      "name": "记忆更新",
+      "identification": ["记住", "记录", "保存到记忆", "更新记忆", "别忘了"],
+      "defaultWorkflow": "memory_write",
+      "recommendedSkills": ["memory-setup", "ontology"],
+      "forbiddenActions": ["memory_delete_all", "ontology_reset"],
+      "defaultOutputFormat": "confirmation",
+      "maxSteps": 3,
+      "riskLevel": "medium",
+      "requiresRetrieval": "none"
+    },
+    "multi_step_agent": {
+      "name": "多步代理",
+      "identification": ["帮我完成", "自动执行", "多步骤", "一步步"],
+      "defaultWorkflow": "agent_workflow",
+      "recommendedSkills": ["self-improving-agent", "auto-skill-upgrade", "proactivity"],
+      "forbiddenActions": ["unlimited_recursion", "unbounded_loop"],
+      "defaultOutputFormat": "step_report",
+      "maxSteps": 30,
+      "riskLevel": "high",
+      "requiresConfirmation": true,
+      "requiresPlanning": true,
+      "requiresRetrieval": "optional"
+    },
+    "high_risk_request": {
+      "name": "高风险请求",
+      "identification": ["删除", "清空", "重置", "卸载", "修改配置", "格式化"],
+      "defaultWorkflow": "high_risk_protocol",
+      "recommendedSkills": [],
+      "forbiddenActions": ["auto_execute", "batch_operation", "irreversible_action"],
+      "defaultOutputFormat": "confirmation_with_warning",
+      "maxSteps": 5,
+      "riskLevel": "critical",
+      "requiresConfirmation": true,
+      "requiresDoubleConfirmation": true,
+      "auditRequired": true,
+      "requiresRetrieval": "required"
+    }
+  },
+  "fallbackTaskType": "qa",
+  "classificationRules": [
+    {
+      "rule": "high_risk_first",
+      "description": "高风险关键词优先匹配",
+      "priority": 100
+    },
+    {
+      "rule": "multi_keyword_match",
+      "description": "多关键词匹配提高置信度",
+      "priority": 50
+    },
+    {
+      "rule": "context_aware",
+      "description": "结合上下文判断任务类型",
+      "priority": 30
+    }
+  ],
+  "retrievalRequirements": {
+    "none": "无需检索",
+    "optional": "按需检索",
+    "required": "必须检索"
+  }
+}

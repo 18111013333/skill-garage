@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """
-架构统一集成入口
-V2.7.0 - 2026-04-10
-
-整合所有新功能到六层架构
+架构统一集成入口 - V2.8.0
+使用统一路径解析，禁止硬编码
 """
 
 import sys
-from pathlib import Path
+from typing import Optional
 
-WORKSPACE = Path("/home/sandbox/.openclaw/workspace")
-sys.path.insert(0, str(WORKSPACE))
+# 使用统一路径解析
+from infrastructure.path_resolver import get_project_root, get_cached_project_root
+
+PROJECT_ROOT = get_cached_project_root()
+sys.path.insert(0, str(PROJECT_ROOT))
 
 # 导入各层集成模块
 from core.prompt_integration import get_prompt_orchestrator
@@ -21,10 +22,10 @@ class ArchitectureIntegration:
     """架构集成管理器"""
     
     def __init__(self):
+        self.project_root = PROJECT_ROOT
         self.prompt_orchestrator = get_prompt_orchestrator()
         self.plugin_orchestrator = get_plugin_orchestrator()
         self.auth_middleware = get_auth_middleware()
-        
         self._initialized = False
     
     def initialize(self):
@@ -32,15 +33,9 @@ class ArchitectureIntegration:
         if self._initialized:
             return
         
-        # 1. 加载核心提示词
         self.prompt_orchestrator.load_layer(1)
-        
-        # 2. 初始化插件系统
         self.plugin_orchestrator.list_plugins()
-        
-        # 3. 初始化权限系统
         self.auth_middleware.get_status()
-        
         self._initialized = True
     
     def get_startup_prompt(self) -> str:
@@ -77,13 +72,14 @@ class ArchitectureIntegration:
         """获取状态"""
         return {
             "initialized": self._initialized,
+            "project_root": str(self.project_root),
             "auth": self.auth_middleware.get_status(),
             "plugins": len(self.plugin_orchestrator.list_plugins()),
             "tokens": self.prompt_orchestrator.get_token_estimate(),
         }
 
 # 全局实例
-_integration = None
+_integration: Optional[ArchitectureIntegration] = None
 
 def get_integration():
     """获取全局集成管理器"""
@@ -93,7 +89,6 @@ def get_integration():
         _integration.initialize()
     return _integration
 
-# 便捷函数
 def startup():
     """启动"""
     return get_integration().initialize()
