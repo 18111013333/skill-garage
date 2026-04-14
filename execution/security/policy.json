@@ -1,0 +1,57 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-04-15T07:57:21.183138",
+  "policies": {
+    "admin": [
+      {
+        "resource": "*",
+        "action": "*",
+        "allowed": true
+      }
+    ],
+    "user": [
+      {
+        "resource": "memory",
+        "action": "read",
+        "allowed": true
+      },
+      {
+        "resource": "memory",
+        "action": "write",
+        "allowed": true
+      },
+      {
+        "resource": "memory",
+        "action": "delete",
+        "allowed": false
+      },
+      {
+        "resource": "config",
+        "action": "read",
+        "allowed": true
+      },
+      {
+        "resource": "config",
+        "action": "write",
+        "allowed": false
+      }
+    ],
+    "guest": [
+      {
+        "resource": "memory",
+        "action": "read",
+        "allowed": true
+      },
+      {
+        "resource": "memory",
+        "action": "write",
+        "allowed": false
+      },
+      {
+        "resource": "config",
+        "action": "read",
+        "allowed": false
+      }
+    ]
+  }
+}

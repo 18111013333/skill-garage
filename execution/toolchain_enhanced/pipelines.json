@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-04-15T07:57:21.787984",
+  "pipelines": [
+    {
+      "id": "ci",
+      "name": "CI 流水线",
+      "stages": [
+        "lint",
+        "test",
+        "build"
+      ],
+      "enabled": true,
+      "last_run": "",
+      "success_rate": 0.0
+    },
+    {
+      "id": "cd",
+      "name": "CD 流水线",
+      "stages": [
+        "build",
+        "deploy",
+        "verify"
+      ],
+      "enabled": true,
+      "last_run": "",
+      "success_rate": 0.0
+    },
+    {
+      "id": "release",
+      "name": "发布流水线",
+      "stages": [
+        "test",
+        "build",
+        "deploy",
+        "notify"
+      ],
+      "enabled": true,
+      "last_run": "",
+      "success_rate": 0.0
+    }
+  ]
+}

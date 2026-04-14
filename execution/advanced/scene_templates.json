@@ -1,0 +1,44 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-04-15T07:57:21.374573",
+  "templates": [
+    {
+      "id": "daily-work",
+      "name": "日常工作",
+      "category": "productivity",
+      "description": "日常办公场景",
+      "skills": [
+        "summarize",
+        "translate"
+      ],
+      "config": {
+        "auto_save": true
+      }
+    },
+    {
+      "id": "research",
+      "name": "研究分析",
+      "category": "analysis",
+      "description": "研究和分析场景",
+      "skills": [
+        "analyze",
+        "summarize"
+      ],
+      "config": {
+        "depth": "high"
+      }
+    },
+    {
+      "id": "creative",
+      "name": "创意写作",
+      "category": "creative",
+      "description": "创意内容生成",
+      "skills": [
+        "translate"
+      ],
+      "config": {
+        "style": "creative"
+      }
+    }
+  ]
+}

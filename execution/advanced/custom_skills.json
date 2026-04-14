@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-04-15T07:57:21.374182",
+  "skills": [
+    {
+      "id": "summarize",
+      "name": "智能摘要",
+      "description": "自动提取文本关键信息",
+      "template": "请总结以下内容：{content}",
+      "parameters": {
+        "content": "string"
+      },
+      "created_at": "2026-04-15T07:57:21.374154",
+      "use_count": 0
+    },
+    {
+      "id": "translate",
+      "name": "智能翻译",
+      "description": "多语言翻译",
+      "template": "请将以下内容翻译成{language}：{content}",
+      "parameters": {
+        "content": "string",
+        "language": "string"
+      },
+      "created_at": "2026-04-15T07:57:21.374169",
+      "use_count": 0
+    },
+    {
+      "id": "analyze",
+      "name": "深度分析",
+      "description": "深度分析文本内容",
+      "template": "请从以下角度分析：{aspects}\n内容：{content}",
+      "parameters": {
+        "content": "string",
+        "aspects": "string"
+      },
+      "created_at": "2026-04-15T07:57:21.374173",
+      "use_count": 0
+    }
+  ]
+}
