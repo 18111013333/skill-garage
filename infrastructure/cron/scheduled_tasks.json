@@ -1,0 +1,110 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-04-15",
+  "tasks": [
+    {
+      "id": "smart-reminder",
+      "name": "智能提醒",
+      "frequency": "每9小时",
+      "cron": "0 */9 * * *",
+      "enabled": true,
+      "last_run": null,
+      "next_run": null,
+      "run_count": 0,
+      "token_saving": "66%"
+    },
+    {
+      "id": "proactive-discovery",
+      "name": "主动发现",
+      "frequency": "每6小时",
+      "cron": "0 */6 * * *",
+      "enabled": true,
+      "last_run": null,
+      "next_run": null,
+      "run_count": 0,
+      "token_saving": "66%"
+    },
+    {
+      "id": "anomaly-detection",
+      "name": "异常检测",
+      "frequency": "每3小时",
+      "cron": "0 */3 * * *",
+      "enabled": true,
+      "last_run": "2026-04-15T07:32:11.895077",
+      "next_run": null,
+      "run_count": 1,
+      "token_saving": "66%"
+    },
+    {
+      "id": "daily-reflection",
+      "name": "三省吾身",
+      "frequency": "每天01:30",
+      "cron": "30 1 * * *",
+      "enabled": true,
+      "last_run": null,
+      "next_run": null,
+      "run_count": 0,
+      "token_saving": "N/A"
+    },
+    {
+      "id": "daily-backup-email",
+      "name": "每日备份邮件",
+      "frequency": "每天02:00",
+      "cron": "0 2 * * *",
+      "enabled": true,
+      "last_run": null,
+      "next_run": null,
+      "run_count": 0,
+      "token_saving": "N/A"
+    },
+    {
+      "id": "memory-index",
+      "name": "记忆索引重建",
+      "frequency": "每天05:00",
+      "cron": "0 5 * * *",
+      "enabled": true,
+      "last_run": null,
+      "next_run": null,
+      "run_count": 0,
+      "token_saving": "N/A"
+    },
+    {
+      "id": "auto-archive",
+      "name": "自动归档",
+      "frequency": "周日03:00",
+      "cron": "0 3 * * 0",
+      "enabled": true,
+      "last_run": null,
+      "next_run": null,
+      "run_count": 0,
+      "token_saving": "N/A"
+    },
+    {
+      "id": "memory-compression",
+      "name": "记忆压缩",
+      "frequency": "周日04:00",
+      "cron": "0 4 * * 0",
+      "enabled": true,
+      "last_run": null,
+      "next_run": null,
+      "run_count": 0,
+      "token_saving": "N/A"
+    },
+    {
+      "id": "weekly-archive",
+      "name": "周归档",
+      "frequency": "周一01:00",
+      "cron": "0 1 * * 1",
+      "enabled": true,
+      "last_run": null,
+      "next_run": null,
+      "run_count": 0,
+      "token_saving": "N/A"
+    }
+  ],
+  "optimization_summary": {
+    "daily_executions_before": 44,
+    "daily_executions_after": 15,
+    "token_saving": "66%"
+  }
+}
