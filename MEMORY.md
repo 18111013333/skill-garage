@@ -4,9 +4,72 @@
 
 ## 项目状态
 
-- **版本**: V4.4.0
-- **状态**: 硬件加速优化完成
+- **版本**: V4.4.1
+- **状态**: API 配置完成，系统全面优化
 - **更新时间**: 2026-04-15
+
+## API 配置 (2026-04-15)
+
+### 已配置 API
+
+| API | 提供商 | 状态 | 用途 |
+|-----|--------|------|------|
+| GLM-4-Flash | 智谱 AI | ✅ 已配置 | LLM 对话 |
+| Qwen3-Embedding-8B | Gitee AI | ✅ 已配置 | 向量 Embedding |
+
+### 小艺 API 认证方式
+
+根据截图学习，小艺 API 使用特殊认证方式：
+- **Header**: `x-api-key` 而非 `Authorization: Bearer`
+- **返回格式**: SSE 流式返回
+- **端点**: `https://celia-claw-drcn.ai.dbankcloud.cn/celia-claw/v1/sse-api`
+
+## 定时任务优化 (2026-04-14)
+
+### 频率调整
+
+| 任务 | 原频率 | 新频率 | Token 节省 |
+|------|--------|--------|------------|
+| anomaly-detection | 每小时 | 每3小时 | ~66% |
+| proactive-discovery | 每2小时 | 每6小时 | ~66% |
+| smart-reminder | 每3小时 | 每9小时 | ~66% |
+
+### 当前定时任务
+
+| 任务 | 频率 | 说明 |
+|------|------|------|
+| smart-reminder | 每9小时 | 智能提醒 |
+| proactive-discovery | 每6小时 | 主动发现 |
+| anomaly-detection | 每3小时 | 异常检测 |
+| 三省吾身 | 每天01:30 | 自我反思 |
+| daily-backup-email | 每天02:00 | 每日备份 |
+| memory-index | 每天05:00 | 记忆索引 |
+| auto-archive | 周日03:00 | 自动归档 |
+| memory-compression | 周日04:00 | 记忆压缩 |
+| weekly-archive | 周一01:00 | 周归档 |
+
+## 记忆系统融合 (2026-04-14)
+
+### 架构关系
+
+```
+鸽子王 = 楼（六层架构）
+├── L2 记忆层
+│   ├── yaoyao-memory = 仓库（存储）
+│   └── llm-memory-integration = 管理员（检索）
+│       └── 共享 ChromaDB 向量数据库
+```
+
+### 融合配置
+
+| 组件 | 状态 | 说明 |
+|------|------|------|
+| yaoyao-memory | ✅ | 记忆存储层，63条记忆 |
+| llm-memory-integration | ✅ | 向量检索层 |
+| ChromaDB | ✅ | 共享向量数据库 |
+| Embedding | ✅ | Gitee AI Qwen3-Embedding-8B, 1024维 |
+| LLM | ✅ | 小艺 GLM5，SSE流式返回 |
+| 数据互通 | ✅ | 两个技能共享同一向量数据库 |
 
 ## 硬件加速优化 (2026-04-15)
 

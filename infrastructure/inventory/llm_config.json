@@ -1,0 +1,26 @@
+{
+  "llm": {
+    "provider": "zhipu",
+    "base_url": "https://open.bigmodel.cn/api/paas/v4",
+    "api_key": "5b008c1b5d02468f995d1d04b9fd5c45.TkuosXrxGydnQ7YY",
+    "model": "glm-4-flash",
+    "max_tokens": 4096,
+    "temperature": 0.7
+  },
+  "embedding": {
+    "provider": "gitee",
+    "base_url": "https://ai.gitee.com/v1",
+    "api_key": "QTOGJC8FYEJPI0NNJOSMCSQOD8U30XNPDVIY1T1Q",
+    "model": "Qwen3-Embedding-8B",
+    "dimensions": 1024
+  },
+  "search": {
+    "top_k": 20,
+    "max_distance": 0.8,
+    "rrf_k": 60
+  },
+  "_comment": {
+    "llm_note": "智谱 GLM-4-Flash 已配置并测试通过",
+    "embedding_note": "Gitee AI Qwen3-Embedding-8B 已配置"
+  }
+}
