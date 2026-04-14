@@ -1,0 +1,82 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-04-15T07:49:14.401656",
+  "workflows": [
+    {
+      "id": "daily-summary",
+      "name": "每日总结",
+      "description": "每天生成工作总结",
+      "steps": [
+        {
+          "id": "collect",
+          "name": "收集数据",
+          "action": "log",
+          "params": {
+            "msg": "收集今日数据"
+          }
+        },
+        {
+          "id": "analyze",
+          "name": "分析数据",
+          "action": "log",
+          "params": {
+            "msg": "分析数据趋势"
+          }
+        },
+        {
+          "id": "report",
+          "name": "生成报告",
+          "action": "notify",
+          "params": {
+            "msg": "每日报告已生成"
+          }
+        }
+      ],
+      "triggers": [
+        "cron:0 20 * * *"
+      ],
+      "enabled": true,
+      "created_at": "2026-04-15T07:49:14.400339",
+      "last_run": "",
+      "run_count": 0
+    },
+    {
+      "id": "memory-backup",
+      "name": "记忆备份",
+      "description": "定期备份记忆数据",
+      "steps": [
+        {
+          "id": "export",
+          "name": "导出记忆",
+          "action": "log",
+          "params": {
+            "msg": "导出记忆数据"
+          }
+        },
+        {
+          "id": "compress",
+          "name": "压缩数据",
+          "action": "log",
+          "params": {
+            "msg": "压缩备份文件"
+          }
+        },
+        {
+          "id": "notify",
+          "name": "发送通知",
+          "action": "notify",
+          "params": {
+            "msg": "记忆备份完成"
+          }
+        }
+      ],
+      "triggers": [
+        "cron:0 2 * * *"
+      ],
+      "enabled": true,
+      "created_at": "2026-04-15T07:49:14.401649",
+      "last_run": "",
+      "run_count": 0
+    }
+  ]
+}

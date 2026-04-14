@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-04-15T07:49:14.218874",
+  "plugins": [
+    {
+      "id": "memory-enhancer",
+      "name": "记忆增强器",
+      "version": "1.0.0",
+      "description": "增强记忆存储和检索能力",
+      "author": "openclaw",
+      "enabled": true,
+      "installed_at": "2026-04-15T07:49:14.218250",
+      "config": {}
+    },
+    {
+      "id": "smart-scheduler",
+      "name": "智能调度器",
+      "version": "1.0.0",
+      "description": "智能任务调度和优化",
+      "author": "openclaw",
+      "enabled": true,
+      "installed_at": "2026-04-15T07:49:14.218538",
+      "config": {}
+    },
+    {
+      "id": "context-manager",
+      "name": "上下文管理器",
+      "version": "1.0.0",
+      "description": "管理对话上下文和状态",
+      "author": "openclaw",
+      "enabled": true,
+      "installed_at": "2026-04-15T07:49:14.218870",
+      "config": {}
+    }
+  ]
+}

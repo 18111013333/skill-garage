@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-04-15T07:49:14.598416",
+  "devices": [
+    {
+      "id": "58c87786a1757163",
+      "name": "本地设备",
+      "type": "server",
+      "status": "online",
+      "last_sync": "2026-04-15T07:49:14.598399",
+      "capabilities": [
+        "memory",
+        "compute",
+        "storage"
+      ]
+    }
+  ]
+}

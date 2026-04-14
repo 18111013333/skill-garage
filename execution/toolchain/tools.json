@@ -1,0 +1,54 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-04-15T07:49:14.817779",
+  "tools": [
+    {
+      "id": "lint",
+      "name": "代码检查",
+      "category": "debug",
+      "description": "检查代码质量",
+      "command": "python -m pylint",
+      "enabled": true
+    },
+    {
+      "id": "format",
+      "name": "代码格式化",
+      "category": "debug",
+      "description": "格式化代码",
+      "command": "python -m black",
+      "enabled": true
+    },
+    {
+      "id": "test",
+      "name": "单元测试",
+      "category": "test",
+      "description": "运行单元测试",
+      "command": "python -m pytest",
+      "enabled": true
+    },
+    {
+      "id": "coverage",
+      "name": "覆盖率测试",
+      "category": "test",
+      "description": "测试覆盖率分析",
+      "command": "python -m coverage",
+      "enabled": true
+    },
+    {
+      "id": "build",
+      "name": "构建",
+      "category": "deploy",
+      "description": "构建项目",
+      "command": "python setup.py build",
+      "enabled": true
+    },
+    {
+      "id": "deploy",
+      "name": "部署",
+      "category": "deploy",
+      "description": "部署到生产环境",
+      "command": "python setup.py install",
+      "enabled": true
+    }
+  ]
+}
