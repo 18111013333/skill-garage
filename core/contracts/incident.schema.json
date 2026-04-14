@@ -4,8 +4,49 @@
   "title": "Incident",
   "description": "事件契约",
   "type": "object",
-  "required": ["incident_id", "alert_type", "status", "opened_at", "owner", "resolution_note"],
+  "required": ["incidents", "generated_at"],
   "properties": {
+    "incidents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["incident_id", "alert_type", "status", "opened_at", "owner", "resolution_note"],
+        "properties": {
+          "incident_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "事件 ID"
+          },
+          "alert_type": {
+            "type": "string",
+            "description": "告警类型"
+          },
+          "status": {
+            "type": "string",
+            "description": "状态"
+          },
+          "opened_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "开启时间"
+          },
+          "owner": {
+            "type": "string",
+            "description": "负责人"
+          },
+          "resolution_note": {
+            "type": "string",
+            "description": "解决说明"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "生成时间"
+    },
     "incident_id": {
       "type": "string",
       "minLength": 1,

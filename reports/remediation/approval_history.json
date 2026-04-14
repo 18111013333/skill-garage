@@ -13,7 +13,8 @@
       "denied_by": null,
       "deny_reason": null,
       "executed_at": null,
-      "execute_record_id": null
+      "execute_record_id": "",
+      "final_status": "approved_legacy"
     },
     {
       "approval_id": "apr_20260412_230659_237",

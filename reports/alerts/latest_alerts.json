@@ -2,6 +2,8 @@
   "generated_at": "2026-04-12T20:13:58.343530",
   "source_workflow": "nightly",
   "profile": "nightly",
+  "alert_type": "performance",
+  "severity": "medium",
   "triggered_at": "2026-04-12T20:13:58.343530",
   "has_blocking_alerts": false,
   "has_warning_alerts": true,

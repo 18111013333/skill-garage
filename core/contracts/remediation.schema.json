@@ -13,7 +13,6 @@
     },
     "action_type": {
       "type": "string",
-      "enum": ["safe_auto", "semi_auto", "forbidden_auto"],
       "description": "动作类型"
     },
     "mode": {

@@ -11,6 +11,6 @@
   "changed_files": [
     "governance/ops/incident_tracker.json"
   ],
-  "error": null,
+  "error": "",
   "requires_approval": true
 }

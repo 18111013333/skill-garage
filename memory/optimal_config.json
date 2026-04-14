@@ -1,0 +1,28 @@
+{
+  "memory_optimization": {
+    "gc_threshold": [100, 5, 5],
+    "cache_cleanup_interval": 3600,
+    "max_memory_usage_percent": 80
+  },
+  "performance": {
+    "vector_search": {
+      "algorithm": "HNSW",
+      "ef_search": 50,
+      "m": 16
+    },
+    "cache": {
+      "kv_cache_size": 1000,
+      "memory_pool_size": 100
+    }
+  },
+  "scheduled_tasks": {
+    "health_check": "0 0 * * *",
+    "memory_cleanup": "0 */6 * * *",
+    "cache_refresh": "0 3 * * *"
+  },
+  "monitoring": {
+    "health_threshold": 90,
+    "memory_threshold": 70,
+    "disk_threshold": 80
+  }
+}

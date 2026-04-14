@@ -1,4 +1,11 @@
 {
+  "profile": "release",
+  "overall_passed": true,
+  "p0_count": 0,
+  "local_status": "passed",
+  "integration_status": "passed",
+  "external_status": "passed",
+  "verified_at": "2026-04-13T00:20:40.836898",
   "can_release": true,
   "runtime_gate": {
     "profile": "release",

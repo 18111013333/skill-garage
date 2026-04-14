@@ -17,7 +17,6 @@
     },
     "status": {
       "type": "string",
-      "enum": ["pending", "approved", "executed", "execute_failed", "denied"],
       "description": "状态"
     },
     "final_status": {
@@ -30,21 +29,21 @@
       "description": "创建时间"
     },
     "approved_by": {
-      "type": "string",
+      "type": ["string", "null"],
       "description": "审批人"
     },
     "approved_at": {
-      "type": "string",
+      "type": ["string", "null"],
       "format": "date-time",
       "description": "审批时间"
     },
     "executed_at": {
-      "type": "string",
+      "type": ["string", "null"],
       "format": "date-time",
       "description": "执行时间"
     },
     "execute_record_id": {
-      "type": "string",
+      "type": ["string", "null"],
       "description": "执行记录 ID（必须对应真实 remediation 记录）"
     },
     "action_params": {

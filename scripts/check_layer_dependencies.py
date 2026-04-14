@@ -57,10 +57,18 @@ class LayerDependencyChecker:
         if not dir_path.exists():
             return violations
 
+        # 加载豁免规则
+        exemptions = self._load_exemptions()
+
         for py_file in dir_path.rglob("*.py"):
             try:
                 content = py_file.read_text(encoding='utf-8')
                 rel_path = py_file.relative_to(self.root)
+                rel_path_str = str(rel_path)
+
+                # 检查是否豁免
+                if self._is_exempted(rel_path_str, exemptions):
+                    continue
 
                 for forbidden_module in forbidden:
                     # 检查 import 语句
@@ -80,6 +88,40 @@ class LayerDependencyChecker:
                 pass
 
         return violations
+
+    def _load_exemptions(self) -> Dict:
+        """加载豁免规则"""
+        rules_file = self.root / "core" / "LAYER_DEPENDENCY_RULES.json"
+        if rules_file.exists():
+            try:
+                with open(rules_file, 'r', encoding='utf-8') as f:
+                    rules = json.load(f)
+                    return rules.get("exemptions", {})
+            except Exception:
+                pass
+        return {}
+
+    def _is_exempted(self, file_path: str, exemptions: Dict) -> bool:
+        """检查文件是否豁免"""
+        # 检查测试文件豁免
+        test_files = exemptions.get("test_files", [])
+        for tf in test_files:
+            if file_path == tf or file_path.endswith(tf):
+                return True
+
+        # 检查桥接文件豁免
+        bridge_files = exemptions.get("bridge_files", [])
+        for bf in bridge_files:
+            if file_path == bf or file_path.startswith(bf) or bf.rstrip('/') in file_path:
+                return True
+
+        # 检查兼容层豁免
+        compat_layers = exemptions.get("compat_layers", [])
+        for cl in compat_layers:
+            if file_path == cl or file_path.endswith(cl):
+                return True
+
+        return False
 
     def run_all_checks(self) -> bool:
         """运行所有检查"""

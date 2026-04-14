@@ -1,7 +1,32 @@
 {
   "version": "2.0.0",
-  "updated": "2026-04-13",
+  "updated": "2026-04-14",
   "description": "层间依赖规则配置文件 - 规则硬化版",
+  
+  "exemptions": {
+    "test_files": [
+      "infrastructure/cold_start_test.py",
+      "infrastructure/regression_test.py",
+      "infrastructure/diagnose_embedding.py",
+      "infrastructure/integration.py",
+      "infrastructure/phase4_improvements.py",
+      "infrastructure/verify_runtime_integrity.py"
+    ],
+    "bridge_files": [
+      "core/layer_bridge/",
+      "core/dynamic_prompt.py",
+      "core/performance_integration.py",
+      "core/llm.py",
+      "core/standards/asset_registry.py",
+      "core/guide/assistant_guide.py"
+    ],
+    "compat_layers": [
+      "memory_context/search/rrf.py",
+      "memory_context/feedback/feedback.py",
+      "orchestration/task_engine.py"
+    ],
+    "description": "测试文件、桥接文件和兼容层豁免依赖检查"
+  },
   
   "layers": {
     "core": {

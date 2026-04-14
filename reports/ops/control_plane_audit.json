@@ -1,6 +1,10 @@
 {
   "generated_at": "2026-04-13T00:02:25.309941",
   "version": "1.0.0",
+  "nightly_runs": [],
+  "release_runs": [],
+  "incident_events": [],
+  "remediation_events": [],
   "release_gates": [
     {
       "timestamp": "20260412_224737",
@@ -482,5 +486,6 @@
       "action": "rebuild_dashboard",
       "result": "success"
     }
-  ]
+  ],
+  "approvals": []
 }
