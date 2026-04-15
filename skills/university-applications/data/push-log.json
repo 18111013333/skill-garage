@@ -132,6 +132,25 @@
           "status": "dry-run"
         }
       ]
+    },
+    {
+      "date": "2026-04-15",
+      "timestamp": "2026-04-15T00:02:58.625Z",
+      "dryRun": true,
+      "results": []
+    },
+    {
+      "date": "2026-04-15",
+      "timestamp": "2026-04-15T00:03:35.358Z",
+      "dryRun": false,
+      "results": [
+        {
+          "userId": "boss",
+          "name": "老板",
+          "status": "error",
+          "error": "sent is not defined"
+        }
+      ]
     }
   ]
 }

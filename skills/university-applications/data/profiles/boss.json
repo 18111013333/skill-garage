@@ -1,0 +1,177 @@
+{
+  "userId": "boss",
+  "name": "老板",
+  "language": "zh",
+  "profile": {
+    "birthDate": "1990-05-15",
+    "birthTime": "08:00",
+    "birthPlace": "上海",
+    "gender": "男",
+    "timezone": "Asia/Shanghai",
+    "trueSolarTime": "08:00",
+    "trueSolarDate": "1990-05-15",
+    "solarCorrectionMin": 0,
+    "solarCorrectionCity": "上海"
+  },
+  "bazi": {
+    "year": "庚午",
+    "month": "辛巳",
+    "day": "庚辰",
+    "hour": "庚辰",
+    "dayStem": "庚",
+    "zodiac": "马",
+    "sect": "晚子时",
+    "source": "verified",
+    "analysis": {
+      "调候用神": {
+        "有调候": true,
+        "主用神": [
+          "壬",
+          "癸"
+        ],
+        "忌神": "丙",
+        "优先级": "壬先癸后",
+        "已有用神": [
+          "癸"
+        ],
+        "缺用神": [
+          "壬"
+        ],
+        "调候状态": "调候不全",
+        "说明": "巳月火旺，壬癸制火"
+      },
+      "日主强弱": {
+        "日主": "庚",
+        "五行": "金",
+        "强弱等级": "弱",
+        "总分": 126,
+        "月令得分": 40,
+        "比劫得分": 28,
+        "通根得分": 30,
+        "印绶得分": 28,
+        "旺衰": "庚身弱，宜取印比生扶",
+        "用神方向": "印比扶身"
+      },
+      "用神格局": {
+        "月令": "巳",
+        "透干用神": "丙",
+        "格局": "七杀",
+        "格局类型": "正格",
+        "善用神": false,
+        "说明": "巳月令，丙本气，取七杀格"
+      },
+      "阴阳刚柔": {
+        "日主阴阳": "阳",
+        "刚柔": "刚",
+        "盖头截脚": [
+          "庚午截脚（火耗金）",
+          "辛巳截脚（火耗金）"
+        ],
+        "天干地支关系": {
+          "年柱": "无直接关系",
+          "月柱": "无直接关系",
+          "日柱": "无直接关系",
+          "时柱": "无直接关系"
+        },
+        "说明": "庚为阳干，性刚，有庚午截脚（火耗金）、辛巳截脚（火耗金）"
+      },
+      "十神": {
+        "天干十神": {
+          "年干": "庚（比肩）",
+          "月干": "辛（劫财）",
+          "时干": "庚（比肩）"
+        },
+        "地支十神": {
+          "年支": "午（丁正官/己正印）",
+          "月支": "巳（丙七杀/庚比肩/戊偏印）",
+          "日支": "辰（戊偏印/乙正财/癸伤官）",
+          "时支": "辰（戊偏印/乙正财/癸伤官）"
+        }
+      }
+    }
+  },
+  "ziwei": {
+    "mingGong": "",
+    "mingZhu": "",
+    "source": "pending"
+  },
+  "family": {
+    "spouse": {
+      "name": "配偶",
+      "profile": {
+        "birthDate": "待录入",
+        "birthTime": "待录入",
+        "birthPlace": "",
+        "gender": "女",
+        "lunarBirth": ""
+      },
+      "bazi": {
+        "year": "",
+        "month": "",
+        "day": "",
+        "hour": "",
+        "source": "pending"
+      }
+    },
+    "father": {
+      "name": "父亲",
+      "profile": {
+        "birthDate": "待录入",
+        "birthTime": "待录入",
+        "birthPlace": "",
+        "gender": "男"
+      },
+      "bazi": {
+        "year": "",
+        "month": "",
+        "day": "",
+        "hour": "",
+        "source": "pending"
+      }
+    },
+    "mother": {
+      "name": "母亲",
+      "profile": {
+        "birthDate": "待录入",
+        "birthTime": "待录入",
+        "birthPlace": "",
+        "gender": "女"
+      },
+      "bazi": {
+        "year": "",
+        "month": "",
+        "day": "",
+        "hour": "",
+        "source": "pending"
+      }
+    },
+    "children": []
+  },
+  "preferences": {
+    "pushMorning": true,
+    "pushEvening": false,
+    "morningTime": "07:00",
+    "eveningTime": "20:00",
+    "channels": [
+      "openclaw"
+    ],
+    "focusAreas": [
+      "事业",
+      "财运",
+      "健康"
+    ],
+    "riskTolerance": "中等"
+  },
+  "settings": {
+    "defaultSect": 1,
+    "lunarCalendar": true,
+    "notifications": {
+      "dailyFortune": true,
+      "riskAlert": true,
+      "weeklySummary": false
+    }
+  },
+  "createdAt": "2026-04-15",
+  "updatedAt": "2026-04-15",
+  "lastPushDate": "2026-04-15"
+}
